@@ -1,19 +1,14 @@
-
 import numpy as np
 import cv2
 
 STAGE_FIRST_FRAME = 0
 STAGE_SECOND_FRAME = 1
 STAGE_DEFAULT_FRAME = 2
-kMinNumFeature = 400
+kMinNumFeature = 450
 
 lk_params = dict(winSize=(21, 21),
-                # maxLevel = 3,
+                maxLevel = 5,
                 criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
-
-# lk_params = dict(winSize=(64, 64),
-#                  maxLevel=2,
-#                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
 
 # Params for ShiTomasi corner detection
 # feature_params = dict(maxCorners=300,
@@ -24,11 +19,9 @@ lk_params = dict(winSize=(21, 21),
 
 def featureTracking(image_ref, image_cur, px_ref):
     kp2, st, err = cv2.calcOpticalFlowPyrLK(image_ref, image_cur, px_ref, None, **lk_params)  # shape: [k,2] [k,1] [k,1]
-
     st = st.reshape(st.shape[0])
     kp1 = px_ref[st == 1]
     kp2 = kp2[st == 1]
-    # print(len(kp2))
     return kp1, kp2
 
 
@@ -47,15 +40,11 @@ class VisualOdometry:
         self.focal = cam.fx
         self.pp = (cam.cx, cam.cy)
         self.trueX, self.trueY, self.trueZ = 0, 0, 0
-        # self.trueX, self.trueY, self.trueZ = 5.1868767738342285, 2.065206527709961, 0.9794552326202393
-        #self.trueX, self.trueY, self.trueZ = 5.174163818359375, 2.0559442043304443, 0.9794552326202393
-        #self.trueX, self.trueY, self.trueZ = 5.155297756195068, 2.042238473892212, 0.9794552326202393
         self.detector = cv2.FastFeatureDetector_create(threshold=10, nonmaxSuppression=True)
-        #self.detector = cv2.goodFeaturesToTrack(mask=None, **feature_params)
         with open(annotations) as f:
             self.annotations = f.readlines()
 
-    def getAbsoluteScale(self, frame_id):  # specialized for KITTI odometry dataset
+    def get_absolute_scale(self, frame_id):
         xi, yi, zi = 3, 7, 11
         ss = self.annotations[frame_id - 1].strip().split()
         x_prev = float(ss[xi])
@@ -66,10 +55,9 @@ class VisualOdometry:
         y = float(ss[yi])
         z = float(ss[zi])
         self.trueX, self.trueY, self.trueZ = x, y, z
-        # print(x_prev, y_prev, z_prev)
         return np.sqrt((x - x_prev) * (x - x_prev) + (y - y_prev) * (y - y_prev) + (z - z_prev) * (z - z_prev))
 
-    def getRelativeScale(self):
+    def get_relative_scale(self):
         """
         Triangulate 3-D points X_(k-1) and X_k from current and previous frame to get relative scale
         :return: relative scale of translation between previous and current frame
@@ -80,12 +68,12 @@ class VisualOdometry:
         rel_scale = np.median(point_distances_prev / point_distances_cur)
         return rel_scale
 
-    def processFirstFrame(self):
+    def process_initial_frame(self):
         self.px_ref = self.detector.detect(self.new_frame)
         self.px_ref = np.array([x.pt for x in self.px_ref], dtype=np.float32)
         self.frame_stage = STAGE_SECOND_FRAME
 
-    def processSecondFrame(self):
+    def process_second_frame(self):
         self.px_ref, self.px_cur = featureTracking(self.last_frame, self.new_frame, self.px_ref)
         E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, method=cv2.RANSAC,
                                        prob=0.999, threshold=1.0)
@@ -93,17 +81,15 @@ class VisualOdometry:
         self.frame_stage = STAGE_DEFAULT_FRAME
         self.px_ref = self.px_cur
 
-    def processFrame(self, frame_id):
+    def process_frame(self, frame_id):
         self.px_ref, self.px_cur = featureTracking(self.last_frame, self.new_frame, self.px_ref)
         E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, method=cv2.RANSAC,
                                        prob=0.999, threshold=1.0)
         _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp)
 
         self.prev_t = self.cur_t
-        relative_scale = self.getRelativeScale()
-        # print(relative_scale)
-        absolute_scale = self.getAbsoluteScale(frame_id)
-        # print(absolute_scale)
+        relative_scale = self.get_relative_scale()
+        absolute_scale = self.get_absolute_scale(frame_id)
 
         if (absolute_scale > 0.01):
             self.cur_t = self.cur_t + absolute_scale * self.cur_R.dot(t)
@@ -119,9 +105,9 @@ class VisualOdometry:
 
         self.new_frame = img
         if (self.frame_stage == STAGE_DEFAULT_FRAME):
-            self.processFrame(frame_id)
+            self.process_frame(frame_id)
         elif (self.frame_stage == STAGE_SECOND_FRAME):
-            self.processSecondFrame()
+            self.process_second_frame()
         elif (self.frame_stage == STAGE_FIRST_FRAME):
-            self.processFirstFrame()
+            self.process_initial_frame()
         self.last_frame = self.new_frame
