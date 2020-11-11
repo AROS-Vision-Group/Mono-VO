@@ -4,11 +4,17 @@ import cv2
 STAGE_FIRST_FRAME = 0
 STAGE_SECOND_FRAME = 1
 STAGE_DEFAULT_FRAME = 2
-kMinNumFeature = 400
+kMinNumFeature = 1600
 
 lk_params = dict(winSize=(21, 21),
                 maxLevel=6,
                 criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
+
+# lk_params = dict(winSize=(21, 21),
+#                  maxLevel=5,
+#                  criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
+#                  #flags=cv2.OPTFLOW_LK_GET_MIN_EIGENVALS,
+#                  minEigThreshold=1e-5)
 
 # Params for ShiTomasi corner detection
 # feature_params = dict(maxCorners=300,
@@ -20,8 +26,14 @@ lk_params = dict(winSize=(21, 21),
 def featureTracking(image_ref, image_cur, px_ref):
     kp2, st, err = cv2.calcOpticalFlowPyrLK(image_ref, image_cur, px_ref, None, **lk_params)  # shape: [k,2] [k,1] [k,1]
     st = st.reshape(st.shape[0])
-    kp1 = px_ref[st == 1][:5000]
-    kp2 = kp2[st == 1][:5000]
+
+    kp1 = px_ref[st == 1]
+    kp2 = kp2[st == 1]
+
+    # idxs = np.random.choice(kp1.shape[0], min(kp1.shape[0], 10000), replace=False)
+    # kp1 = kp1[idxs]
+    # kp2 = kp2[idxs]
+
     return kp1, kp2
 
 
@@ -35,6 +47,7 @@ class VisualOdometry:
         self.cur_t = None
         self.px_ref = None
         self.px_cur = None
+        self.inlier_ratio = 0
         self.focal = cam.fx
         self.pp = (cam.cx, cam.cy)
         self.trueX, self.trueY, self.trueZ = 0, 0, 0
@@ -53,7 +66,7 @@ class VisualOdometry:
         y = float(ss[yi])
         z = float(ss[zi])
         self.trueX, self.trueY, self.trueZ = x, y, z
-        return np.sqrt((x - x_prev) * (x - x_prev) + (y - y_prev) * (y - y_prev) + (z - z_prev) * (z - z_prev))
+        return np.sqrt((x - x_prev)**2 + (y - y_prev)**2 + (z - z_prev)**2)
 
     def get_relative_scale(self):
         """
@@ -75,15 +88,20 @@ class VisualOdometry:
         self.px_ref, self.px_cur = featureTracking(self.last_frame, self.new_frame, self.px_ref)
         E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, method=cv2.RANSAC,
                                        prob=0.999, threshold=1.0)
-        _, self.cur_R, self.cur_t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp)
+        self.inlier_ratio = np.sum(mask) / (len(mask)+1)
+
+        _, self.cur_R, self.cur_t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, mask=mask)
         self.frame_stage = STAGE_DEFAULT_FRAME
         self.px_ref = self.px_cur
 
     def process_frame(self, frame_id):
         self.px_ref, self.px_cur = featureTracking(self.last_frame, self.new_frame, self.px_ref)
+
         E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, method=cv2.RANSAC,
                                        prob=0.999, threshold=1.0)
-        _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp)
+        self.inlier_ratio = np.sum(mask) / (len(mask) + 1)
+
+        _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, mask=mask)
 
         # relative_scale = self.get_relative_scale()
         absolute_scale = self.get_absolute_scale(frame_id)
@@ -91,9 +109,11 @@ class VisualOdometry:
         if absolute_scale > 0.01:
             self.cur_t = self.cur_t + absolute_scale * self.cur_R.dot(t)
             self.cur_R = R.dot(self.cur_R)
-        if self.px_ref.shape[0] < kMinNumFeature:
+
+        if self.px_ref.shape[0] < kMinNumFeature: #or frame_id % 50 == 0:
             self.px_cur = self.detector.detect(self.new_frame)
             self.px_cur = np.array([x.pt for x in self.px_cur], dtype=np.float32)
+
         self.px_ref = self.px_cur
 
     def update(self, img, frame_id):
