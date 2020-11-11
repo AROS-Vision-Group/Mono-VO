@@ -4,10 +4,10 @@ import cv2
 STAGE_FIRST_FRAME = 0
 STAGE_SECOND_FRAME = 1
 STAGE_DEFAULT_FRAME = 2
-kMinNumFeature = 450
+kMinNumFeature = 400
 
 lk_params = dict(winSize=(21, 21),
-                maxLevel = 5,
+                maxLevel=6,
                 criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
 
 # Params for ShiTomasi corner detection
@@ -20,10 +20,9 @@ lk_params = dict(winSize=(21, 21),
 def featureTracking(image_ref, image_cur, px_ref):
     kp2, st, err = cv2.calcOpticalFlowPyrLK(image_ref, image_cur, px_ref, None, **lk_params)  # shape: [k,2] [k,1] [k,1]
     st = st.reshape(st.shape[0])
-    kp1 = px_ref[st == 1]
-    kp2 = kp2[st == 1]
+    kp1 = px_ref[st == 1][:5000]
+    kp2 = kp2[st == 1][:5000]
     return kp1, kp2
-
 
 
 class VisualOdometry:
@@ -33,7 +32,6 @@ class VisualOdometry:
         self.new_frame = None
         self.last_frame = None
         self.cur_R = None
-        self.prev_t = None
         self.cur_t = None
         self.px_ref = None
         self.px_cur = None
@@ -87,14 +85,13 @@ class VisualOdometry:
                                        prob=0.999, threshold=1.0)
         _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp)
 
-        self.prev_t = self.cur_t
-        relative_scale = self.get_relative_scale()
+        # relative_scale = self.get_relative_scale()
         absolute_scale = self.get_absolute_scale(frame_id)
 
-        if (absolute_scale > 0.01):
+        if absolute_scale > 0.01:
             self.cur_t = self.cur_t + absolute_scale * self.cur_R.dot(t)
             self.cur_R = R.dot(self.cur_R)
-        if (self.px_ref.shape[0] < kMinNumFeature):
+        if self.px_ref.shape[0] < kMinNumFeature:
             self.px_cur = self.detector.detect(self.new_frame)
             self.px_cur = np.array([x.pt for x in self.px_cur], dtype=np.float32)
         self.px_ref = self.px_cur
@@ -104,10 +101,10 @@ class VisualOdometry:
             "Frame: provided image has not the same size as the camera model or image is not grayscale"
 
         self.new_frame = img
-        if (self.frame_stage == STAGE_DEFAULT_FRAME):
+        if self.frame_stage == STAGE_DEFAULT_FRAME:
             self.process_frame(frame_id)
-        elif (self.frame_stage == STAGE_SECOND_FRAME):
+        elif self.frame_stage == STAGE_SECOND_FRAME:
             self.process_second_frame()
-        elif (self.frame_stage == STAGE_FIRST_FRAME):
+        elif self.frame_stage == STAGE_FIRST_FRAME:
             self.process_initial_frame()
         self.last_frame = self.new_frame

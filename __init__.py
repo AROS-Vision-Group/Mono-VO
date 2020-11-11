@@ -1,47 +1,17 @@
 import os
-import glob
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 from visual_odometry import VisualOdometry
 from pinhole_camera import PinholeCamera
+from utils import preprocess_images, draw_3d_plot
 
 
-def get_img_id(i):
-	num_digits = len(str(i))
-	id = "0" * (4 - num_digits)
-	id += str(i)
-	return id
-
-
-def draw_3d_plot(xs, ys, zs, true_xs, true_ys, true_zs):
-	fig = plt.figure()
-	ax = fig.gca(projection='3d')
-	ax.plot(xs, ys, zs, label='Estimated Trajectory', color='green')
-	ax.plot(true_xs, true_ys, true_zs, label='Ground Truth', color='red')
-	ax.set_xlabel('X')
-	ax.set_ylabel('Y')
-	ax.set_zlabel('Z')
-	ax.legend()
-	plt.show()
-
-
-def preprocess_images(filepath):
-	out = []
-	images = [cv2.imread(file, 0) for file in sorted(glob.glob(filepath))]
-	for img in images:
-		#img = cv2.normalize(img.astype('float'), None, 0.0, 1.0, cv2.NORM_MINMAX)
-		#img = cv2.medianBlur(img, 3)
-		img = cv2.resize(img,)
-		img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
-		out.append(img)
-	return out
 
 # For UW simulation dataset
 cam = PinholeCamera(width=1920.0, height=1080.0, fx=1263.1578, fy=1125, cx=960, cy=540)
 vo = VisualOdometry(cam, annotations='./data/simulation_ground_truth_poses.txt')
-num_frames = len(os.listdir('data/images_misty/'))
-images = preprocess_images('data/images_misty/*.jpg')
+num_frames = len(os.listdir('data/images_v1/'))
+images = preprocess_images('data/images_v1/*.jpg')
 
 traj = np.zeros((480, 640, 3), dtype=np.uint8)
 x_orig, y_orig = 290, 400
@@ -98,7 +68,6 @@ for i, img in enumerate(images):
 	k = 30
 	draw_x, draw_y = int(x * k) + x_orig, -int(z * k) + y_orig
 	true_x, true_y = int(true_transf_x * k) + x_orig, int(true_transf_z * k) + y_orig
-
 
 	cv2.circle(traj, (draw_x, draw_y), 1, (i * 255 / 4540, 255 - i * 255 / 4540, 0), 1)
 	cv2.circle(traj, (true_x, true_y), 1, (0, 0, 255), 1)
