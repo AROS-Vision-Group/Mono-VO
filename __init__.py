@@ -117,8 +117,8 @@ for i, img in enumerate(images):
 	true_ys.append(true_transf_y)
 	true_zs.append(true_transf_z)
 
-cv2.imwrite('map.png', traj)
 
+cv2.imwrite('plots/map.png', traj)
 plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs)
 plot_inlier_ratio(inlier_ratios)
 plot_drift(drift)

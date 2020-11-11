@@ -11,23 +11,27 @@ def get_img_id(i):
 	return id
 
 
-def plot_inlier_ratio(ratios):
+def plot_inlier_ratio(ratios, save=True):
 	plt.plot([i for i in range(len(ratios))], ratios, color='blue')
 	plt.title('RANSAC inlier ratio across frames')
 	plt.xlabel('# of frames')
 	plt.ylabel('Inlier Ratio')
+	if save:
+		plt.savefig('plots/inlier_ratio.png', bbox_inches='tight')
 	plt.show()
 
 
-def plot_drift(drift):
+def plot_drift(drift, save=True):
 	plt.plot([i for i in range(len(drift))], drift, color='blue')
 	plt.title('Drift (l2 distance) between estimated and GT')
 	plt.xlabel('# of frames')
 	plt.ylabel('Drift')
+	if save:
+		plt.savefig('plots/drift.png', bbox_inches='tight')
 	plt.show()
 
 
-def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs):
+def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs, save=True):
 	fig = plt.figure()
 	ax = fig.gca(projection='3d')
 	ax.plot(xs, ys, zs, label='Estimated Trajectory', color='green')
@@ -37,6 +41,8 @@ def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs):
 	ax.set_ylabel('Y')
 	ax.set_zlabel('Z')
 	ax.legend()
+	if save:
+		plt.savefig('plots/3d_traj.png', bbox_inches='tight')
 	plt.show()
 
 
