@@ -42,6 +42,9 @@ for i, img in enumerate(images):
 
 	true_transf_x, true_transf_y, true_transf_z = vo.trueX, vo.trueY, vo.trueZ
 
+	print('-'*30)
+	print(x, y, z)
+	print(true_transf_x, true_transf_y, true_transf_z)
 	# Key point visualization
 	if i > 2:
 		for j, (new, old) in enumerate(zip(vo.px_cur, vo.px_ref)):

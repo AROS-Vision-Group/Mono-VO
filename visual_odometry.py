@@ -115,7 +115,7 @@ class VisualOdometry:
         self.focal = cam.fx
         self.pp = (cam.cx, cam.cy)
         self.trueX, self.trueY, self.trueZ = 0, 0, 0
-        self.correspondance_method = 'matching'
+        self.correspondance_method = 'tracking'
         #brief_extractor = detector.BRIEF_extractor()
         #self.detector = detector.SIFT(brief_extractor)
         self.detector = detector.ORB()
