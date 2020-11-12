@@ -82,17 +82,10 @@ def feature_matching(px_ref, px_cur, des_ref, des_cur):
     flann = cv2.FlannBasedMatcher(index_params, search_params)
     matches = flann.knnMatch(des_ref, des_cur, k=2)  # k=2 to apply ratio test
 
-    # Ratio Test as per Lowe's paper
-    # good = []
-    # for m, n in matches:
-    #     if m.distance < 0.7 * n.distance:
-    #         good.append(m)
-
-    # discard bad matches, ratio test as per Lowe's paper
+    # Discard bad matches, ratio test as per Lowe's paper
     good_matches = list(filter(lambda x: x[0].distance < 0.7 * x[1].distance,
                           matches))
     good_matches = [good_matches[i][0] for i in range(len(good_matches))]
-    # print(good_matches)
 
     kp1 = []
     kp2 = []
