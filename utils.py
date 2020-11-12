@@ -23,7 +23,7 @@ def plot_inlier_ratio(ratios, save=True):
 
 def plot_drift(drift, save=True):
 	plt.plot([i for i in range(len(drift))], drift, color='blue')
-	plt.title('Drift (l2 distance) between estimated and GT')
+	plt.title('Drift (L2 distance) between estimated and GT')
 	plt.xlabel('# of frames')
 	plt.ylabel('Drift')
 	if save:
@@ -34,8 +34,8 @@ def plot_drift(drift, save=True):
 def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs, save=True):
 	fig = plt.figure()
 	ax = fig.gca(projection='3d')
-	ax.plot(xs, ys, zs, label='Estimated Trajectory', color='green')
-	ax.plot(true_xs, true_ys, true_zs, label='Ground Truth', color='red')
+	ax.plot(xs, ys, zs, label='Estimated Trajectory', color='red')
+	ax.plot(true_xs, true_ys, true_zs, label='Ground Truth', color='green')
 	ax.set_title('3D trajectory')
 	ax.set_xlabel('X')
 	ax.set_ylabel('Y')
@@ -46,22 +46,26 @@ def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs, save=True):
 	plt.show()
 
 
-def preprocess_images(filepath):
+def preprocess_images(filepath, default=False, morphology=False):
 	out = []
 	images = [cv2.imread(file, 0) for file in sorted(glob.glob(filepath))]
+	if default:
+		return images
 	for img in images:
 		processed_img = img.copy()
-		#img = cv2.normalize(img.astype('float'), None, 0.0, 1.0, cv2.NORM_MINMAX)
-		# processed_img = cv2.medianBlur(processed_img, 5)
+		cv2.normalize(img.astype('float'), img, 0.0, 1.0, cv2.NORM_MINMAX)
 		processed_img = cv2.GaussianBlur(processed_img, (7, 7), 0)
 		processed_img = cv2.adaptiveThreshold(processed_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, 2)
+		if morphology:
+			kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, ksize=(3, 3))
+			# img_erosion = cv2.erode(img, kernel, iterations=1)
+			processed_img = cv2.dilate(processed_img, kernel, iterations=3)
+			processed_img = cv2.morphologyEx(processed_img, cv2.MORPH_CLOSE, kernel, iterations=1)
+			# processed_img = cv2.morphologyEx(processed_img, cv2.MORPH_OPEN, kernel, iterations=1)
 		out.append(processed_img)
 	return out
 
 
-def preprocess_images2(filepath):
-	images = [cv2.imread(file, 0) for file in sorted(glob.glob(filepath))]
-	return images
 
 
 def get_images_from_video(video_path):
