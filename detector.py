@@ -53,9 +53,8 @@ class ShiTomasiDetector(DetectorDescriptorInterface):
 										  minDistance=10,
 										  blockSize=10)
 
-		kp = [cv2.KeyPoint(c[0], c[1], 1.0) for c in np.squeeze(corners)]
+		kp = [cv2.KeyPoint(c[0][1], c[0][1], 1.0) for c in corners]  # np.squeeze(corners)]
 
-		#kp = self.detector.detect(frame)
 		return kp
 
 	def get_descriptors(self, frame, kp):

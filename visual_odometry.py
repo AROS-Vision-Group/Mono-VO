@@ -45,9 +45,9 @@ def feature_tracking(image_ref, image_cur, px_ref):
     # kp1 = kp1[idxs]
     # kp2 = kp2[idxs]
 
-    print(kp1.shape)
-    print(kp2.shape)
-    print(type(kp1[0][0]))
+    # print(kp1.shape)
+    # print(kp2.shape)
+    # print(type(kp1[0][0]))
     return kp1, kp2
 
 
@@ -105,6 +105,7 @@ class VisualOdometry:
         self.cam = cam
         self.new_frame = None
         self.last_frame = None
+        self.prev_t = None
         self.cur_R = None
         self.cur_t = None
         self.px_ref = None
@@ -115,11 +116,13 @@ class VisualOdometry:
         self.focal = cam.fx
         self.pp = (cam.cx, cam.cy)
         self.trueX, self.trueY, self.trueZ = 0, 0, 0
+        self.trueR = np.zeros((3, 3))
+
         self.correspondance_method = 'tracking'
         #brief_extractor = detector.BRIEF_extractor()
         #self.detector = detector.SIFT(brief_extractor)
-        self.detector = detector.ORB()
-        #self.detector = detector.FAST_Detector()
+        #self.detector = detector.ORB()
+        self.detector = detector.FAST_Detector()
         #self.detector = cv2.FastFeatureDetector_create(threshold=10, nonmaxSuppression=True)
         #self.detector = detector.Harris()
         with open(annotations) as f:
@@ -136,6 +139,12 @@ class VisualOdometry:
         y = float(ss[yi])
         z = float(ss[zi])
         self.trueX, self.trueY, self.trueZ = x, y, z
+
+        r11, r12, r13 = float(ss[0]), float(ss[1]), float(ss[2])
+        r21, r22, r23 = float(ss[4]), float(ss[5]), float(ss[6])
+        r31, r32, r33 = float(ss[8]), float(ss[9]), float(ss[10])
+        self.trueR = np.array([r11, r12, r13, r21, r22, r23, r31, r32, r33]).reshape((3, 3))
+
         return np.sqrt((x - x_prev)**2 + (y - y_prev)**2 + (z - z_prev)**2)
 
     def get_relative_scale(self):
