@@ -1,7 +1,6 @@
 import json
 import numpy as np
 import utils
-import compute
 
 
 def prepare_ground_truth(filepath, t_inv_matrix):
@@ -34,11 +33,11 @@ def prepare_ground_truth(filepath, t_inv_matrix):
 
 
 def flip_y_and_z_axis(R):
-    theta = compute.rotation_matrix_to_euler_angles(R)
+    theta = utils.rotation_matrix_to_euler_angles(R)
     theta[1] = - theta[1]
     theta[2] = - theta[2]
 
-    return compute.euler_angles_to_rotation_matrix(theta)
+    return utils.euler_angles_to_rotation_matrix(theta)
 
 
 if __name__ == '__main__':
