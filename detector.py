@@ -1,4 +1,6 @@
 import cv2
+import utils
+import numpy as np
 
 
 class DetectorDescriptorInterface:
@@ -33,12 +35,12 @@ class DetectorDescriptorInterface:
 
 
 class HarrisDetector(DetectorDescriptorInterface):
-	def __init__(self, des_extractor=None):
+	def __init__(self, des_extractor=None, **params):
 		super().__init__(des_extractor, as_extractor=False)
 
 
 class ShiTomasiDetector(DetectorDescriptorInterface):
-	def __init__(self, des_extractor=None):
+	def __init__(self, des_extractor=None, **params):
 		super().__init__(des_extractor, as_extractor=False)
 
 	def get_keypoints(self, frame):
@@ -60,9 +62,9 @@ class ShiTomasiDetector(DetectorDescriptorInterface):
 
 
 class FAST_Detector(DetectorDescriptorInterface):
-	def __init__(self, des_extractor=None):
+	def __init__(self, des_extractor=None, **params):
 		super().__init__(des_extractor, as_extractor=False)
-		self.detector = cv2.FastFeatureDetector_create(threshold=10, nonmaxSuppression=True)
+		self.detector = cv2.FastFeatureDetector_create(**params)
 
 	def get_keypoints(self, frame):
 		kp = self.detector.detect(frame)
@@ -75,14 +77,29 @@ class FAST_Detector(DetectorDescriptorInterface):
 		return self.des_extractor.get_descriptors(frame, kp)
 
 
+class CenSurE_Detector(DetectorDescriptorInterface):
+	def __init__(self, des_extractor=None, **params):
+		super().__init__(des_extractor, as_extractor=False)
+		self.detector = cv2.xfeatures2d.StarDetector_create(**params)
+
+	def get_keypoints(self, frame):
+		kp = self.detector.detect(frame, None)
+		return kp
+
+	def get_descriptors(self, frame, kp):
+		if self.des_extractor is None:
+			raise NotImplementedError("No descriptor extractor specified.")
+
+		return self.des_extractor.get_descriptors(frame, kp)
+
+
 class SIFT(DetectorDescriptorInterface):
-	def __init__(self, des_extractor=None, as_extractor=False):
+	def __init__(self, des_extractor=None, as_extractor=False, **params):
 		super().__init__(des_extractor, as_extractor)
-		self.detector = cv2.SIFT_create()
+		self.detector = cv2.SIFT_create(**params)
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
-		print(des.shape)
 		self.des = des
 		return kp
 
@@ -98,9 +115,9 @@ class SIFT(DetectorDescriptorInterface):
 
 
 class SURF(DetectorDescriptorInterface):
-	def __init__(self, des_extractor=None, as_extractor=False):
+	def __init__(self, des_extractor=None, as_extractor=False, **params):
 		super().__init__(des_extractor, as_extractor)
-		self.detector = cv2.xfeatures2d.SURF_create()
+		self.detector = cv2.xfeatures2d.SURF_create(**params)
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
@@ -119,9 +136,9 @@ class SURF(DetectorDescriptorInterface):
 
 
 class ORB(DetectorDescriptorInterface):
-	def __init__(self, des_extractor=None, as_extractor=False):
+	def __init__(self, des_extractor=None, as_extractor=False, **params):
 		super().__init__(des_extractor, as_extractor)
-		self.detector = cv2.ORB_create(nfeatures=5000)
+		self.detector = cv2.ORB_create(**params)
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
@@ -139,13 +156,34 @@ class ORB(DetectorDescriptorInterface):
 		return self.des_extractor.get_descriptors(frame, kp)
 
 
+class AKAZE(DetectorDescriptorInterface):
+	def __init__(self, des_extractor=None, as_extractor=False, **params):
+		super().__init__(des_extractor, as_extractor)
+		self.detector = cv2.AKAZE_create(**params)
+
+	def get_keypoints(self, frame):
+		kp, des = self.detector.detectAndCompute(frame, None)
+		#kp, des = utils.KDT_NMS(kp, des, r=35)
+		self.des = des
+		return kp
+
+	def get_descriptors(self, frame, kp):
+		if self.des_extractor is None:
+			if self.as_extractor:
+				kp, des = self.detector.compute(frame, kp)
+				return kp, des
+			else:
+				return kp, self.des
+
+		return self.des_extractor.get_descriptors(frame, kp)
+
+
 class BRIEF_Extractor(DetectorDescriptorInterface):
-	def __init__(self):
+	def __init__(self, **params):
 		super().__init__(des_extractor=None, as_extractor=True)
-		self.des_extractor = cv2.xfeatures2d.BriefDescriptorExtractor_create()
+		self.des_extractor = cv2.xfeatures2d.BriefDescriptorExtractor_create(**params)
 
 	def get_descriptors(self, frame, kp):
 		kp, des = self.des_extractor.compute(frame, kp)
-		print(des.shape)
 		return kp, des
 

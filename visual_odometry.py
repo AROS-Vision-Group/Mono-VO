@@ -41,13 +41,6 @@ def feature_tracking(image_ref, image_cur, px_ref):
     kp1 = px_ref[st == 1]
     kp2 = kp2[st == 1]
 
-    # idxs = np.random.choice(kp1.shape[0], min(kp1.shape[0], 10000), replace=False)
-    # kp1 = kp1[idxs]
-    # kp2 = kp2[idxs]
-
-    # print(kp1.shape)
-    # print(kp2.shape)
-    # print(type(kp1[0][0]))
     return kp1, kp2
 
 
@@ -137,13 +130,31 @@ class VisualOdometry:
         self.trueR = np.zeros((3, 3))
 
         self.correspondence_method = 'matching'
-        brief_extractor = detector.BRIEF_Extractor()
+
+        FAST_params = {
+            'threshold': 10,
+            'nonmaxSuppression': True
+        }
+
+        ORB_params = {
+            'nfeatures': 5000,
+        }
+
+        BRIEF_params = {
+            'use_orientation': True
+        }
+
+        brief_extractor = detector.BRIEF_Extractor(**BRIEF_params)
         #orb_extractor = detector.ORB(as_extractor=True)
         #sift_extractor = detector.SIFT(as_extractor=True)
 
         #self.detector = detector.SIFT()
-        #self.detector = detector.ORB()
-        self.detector = detector.FAST_Detector(brief_extractor)
+        self.detector = detector.ORB(des_extractor=brief_extractor, **ORB_params)
+        #self.detector = detector.CenSurE_Detector(des_extractor=brief_extractor)
+        #self.detector = detector.AKAZE()
+        #self.detector = detector.FAST_Detector(**FAST_params)
+        #self.detector = detector.FAST_Detector(**FAST_params)
+        # self.detector = cv2.FastFeatureDetector_create(threshold=500, nonmaxSuppression=True)
         #self.detector = detector.Harris()
         with open(annotations) as f:
             self.annotations = f.readlines()

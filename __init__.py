@@ -5,6 +5,7 @@ from visual_odometry import VisualOdometry
 from pinhole_camera import PinholeCamera
 from utils import preprocess_images, plot_3d_traj, plot_inlier_ratio, euclidean_distance, plot_drift, plot_rotation_erros, plot_orientation_angle
 import utils
+import compute
 
 # For UW simulation dataset
 W = 1920
