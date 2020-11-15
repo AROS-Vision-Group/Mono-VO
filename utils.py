@@ -54,6 +54,58 @@ def plot_rotation_erros(rot_errors, save=True):
 	plt.show()
 
 
+def visualize_2d_traj(vo, traj, camera_traj, x_orig=290, y_orig=400):
+	i = vo.frame_id
+	x, y, z = vo.cur_t[0][0], vo.cur_t[1][0], vo.cur_t[2][0]
+	trueX, trueY, trueZ = vo.trueX, vo.trueY, vo.trueZ
+
+	# 2D trajectory
+	k = 30
+	draw_x, draw_y = int(x * k) + x_orig, -int(z * k) + y_orig
+	true_x, true_y = int(trueX * k) + x_orig, -int(trueZ * k) + y_orig
+
+	cv2.circle(traj, (true_x, true_y), 1, (0, i * (255), 0), 1, cv2.LINE_AA)
+	cv2.circle(traj, (draw_x, draw_y), 1, (0, 0, i * (255)), 1, cv2.LINE_AA)
+	cv2.rectangle(traj, (10, 20), (600, 60), (0, 0, 0), -1)
+
+	text = f"Estimated:    x={x:.3f} y={y:.3f} z={z:.3f}"
+	cv2.putText(traj, text, (20, 40), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+	text_true = f"GroundTruth: x={trueX:.3f} y={trueY:.3f} z={trueZ:.3f}"
+	cv2.putText(traj, text_true, (20, 60), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+
+	# Camera viewport lines
+	l = 20
+	x_x, x_y = vo.cur_R[0][0] * l, vo.cur_R[0][2] * l
+	z_x, z_y = -(vo.cur_R[2][0]) * l, -(vo.cur_R[2][2]) * l
+
+	x_x, x_y = rotate_around(x_x, x_y, draw_x, draw_y, -45)
+	z_x, z_y = rotate_around(z_x, z_y, draw_x, draw_y, -45)
+
+	cv2.line(camera_traj, (draw_x, draw_y), (int(x_x), int(x_y)), (0, 255, 255), 1, cv2.LINE_AA)
+	cv2.line(camera_traj, (draw_x, draw_y), (int(z_x), int(z_y)), (255, 255, 0), 1, cv2.LINE_AA)
+
+	combined = cv2.add(traj, camera_traj)
+	cv2.imshow('Trajectory', combined)
+
+
+def make_2d_traj(traj, vo, draw_x, draw_y):
+	x, y, z = vo.x, vo.y, vo.z
+	trueX, trueY, trueZ = vo.trueX, vo.trueY, vo.trueZ
+
+	k = 30
+	draw_x, draw_y = int(x * k) + x_orig, -int(z * k) + y_orig
+	true_x, true_y = int(trueX * k) + x_orig, -int(trueZ * k) + y_orig
+
+	cv2.circle(traj, (true_x, true_y), 1, (0, 255, 0), 1, cv2.LINE_AA)
+	cv2.circle(traj, (draw_x, draw_y), 1, (0, 0, 255), 1, cv2.LINE_AA)
+	cv2.rectangle(traj, (10, 20), (600, 60), (0, 0, 0), -1)
+
+	text = f"Estimated:    x={x:.3f} y={y:.3f} z={z:.3f}"
+	cv2.putText(traj, text, (20, 40), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+	text_true = f"GroundTruth: x={trueX:.3f} y={trueY:.3f} z={trueZ:.3f}"
+	cv2.putText(traj, text_true, (20, 60), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+
+
 def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs, save=True):
 	fig = plt.figure()
 	ax = fig.gca(projection='3d')

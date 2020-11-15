@@ -25,7 +25,7 @@ class OpticalFlowTracker(PointCorrespondenceFinderInterface):
 		super().__init__(params)
 
 	def get_corresponding_points(self, img_ref=None, img_cur=None, px_ref=None, px_cur=None, des_ref=None, des_cur=None):
-		assert img_ref is not None and img_cur is not None and px_ref is not None
+		assert (img_ref is not None and img_cur is not None and px_ref is not None)
 
 		kp2, st, err = cv2.calcOpticalFlowPyrLK(img_ref, img_cur, px_ref, None, **self.params)  # shape: [k,2] [k,1] [k,1]
 		st = st.reshape(st.shape[0])
@@ -41,7 +41,7 @@ class FLANN_Matcher(PointCorrespondenceFinderInterface):
 		super().__init__(params)
 
 	def get_corresponding_points(self, img_ref=None, img_cur=None, px_ref=None, px_cur=None, des_ref=None, des_cur=None):
-		assert px_ref is not None and px_cur is not None and des_ref is not None and des_cur is not None
+		assert (px_ref is not None and px_cur is not None and des_ref is not None and des_cur is not None)
 
 		index_params = self.params['index_params']
 		search_params = self.params['search_params']

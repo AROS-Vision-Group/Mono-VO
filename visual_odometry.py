@@ -45,17 +45,17 @@ FLANN_PARAMS = {
 # }
 
 
-
 class VisualOdometry:
     def __init__(self, cam, annotations):
         self.frame_stage = 0
+        self.frame_id = 0
         self.cam = cam
         self.new_frame = None
         self.last_frame = None
 
         self.prev_t = None
-        self.cur_R = None
-        self.cur_t = None
+        self.cur_t = np.zeros((3, 1))
+        self.cur_R = np.eye(3)
 
         self.px_ref = None
         self.px_cur = None
@@ -70,7 +70,6 @@ class VisualOdometry:
         self.focal = cam.fx
         self.pp = (cam.cx, cam.cy)
         self.trueX, self.trueY, self.trueZ = 0, 0, 0
-        self.trueR = np.zeros((3, 3))
 
         brief_extractor = detector.BRIEF_Extractor(**BRIEF_PARAMS)
         #orb_extractor = detector.ORB(as_extractor=True)
@@ -153,20 +152,16 @@ class VisualOdometry:
         self.inlier_ratio = np.sum(mask) / (len(mask) + 1)
         self.lines_cur = cv2.computeCorrespondEpilines(self.px_ref.reshape(-1, 1, 2), 2, E)
 
-        if frame_id == 1:
-            _, self.cur_R, self.cur_t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp,
-                                                              mask=mask)
-        else:
-            _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, mask=mask)
+        _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, mask=mask)
 
-            absolute_scale = self.get_absolute_scale(frame_id)
-            if absolute_scale > 0.01:
-                self.cur_t = self.cur_t + absolute_scale * self.cur_R.dot(t)
-                self.cur_R = R.dot(self.cur_R)
+        absolute_scale = self.get_absolute_scale(frame_id)
+        if absolute_scale > 0.01:
+            self.cur_t = self.cur_t + absolute_scale * self.cur_R.dot(t)
+            self.cur_R = R.dot(self.cur_R)
 
-            if self.correspondence_method == 'tracking' and self.px_ref.shape[0] < kMinNumFeature: #or frame_id % 50 == 0:
-                self.px_cur = self.detector.get_keypoints(self.new_frame)
-                self.px_cur = np.array([x.pt for x in self.px_cur], dtype=np.float32)
+        if self.correspondence_method == 'tracking' and self.px_ref.shape[0] < kMinNumFeature: #or frame_id % 50 == 0:
+            self.px_cur = self.detector.get_keypoints(self.new_frame)
+            self.px_cur = np.array([x.pt for x in self.px_cur], dtype=np.float32)
 
         self.px_ref = self.px_cur
         self.des_ref = self.des_cur
@@ -181,3 +176,4 @@ class VisualOdometry:
         elif self.frame_stage == STAGE_FIRST_FRAME:
             self.process_initial_frame()
         self.last_frame = self.new_frame
+        self.frame_id = frame_id
