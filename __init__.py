@@ -5,7 +5,6 @@ from visual_odometry import VisualOdometry
 from pinhole_camera import PinholeCamera
 from utils import preprocess_images, plot_3d_traj, plot_inlier_ratio, euclidean_distance, plot_drift, plot_rotation_erros, plot_orientation_angle
 import utils
-import math
 
 # For UW simulation dataset
 W = 1920
@@ -15,12 +14,12 @@ cam = PinholeCamera(width=float(W), height=float(H), fx=1263.1578, fy=1125, cx=9
 vo = VisualOdometry(cam, annotations='./data/transformed_ground_truth_vol2.txt')
 num_frames = len(os.listdir('data/images_v1/'))
 orig_images = preprocess_images('data/images_v1/*.jpg', default=True)
-images = preprocess_images('data/images_v1/*.jpg')
+images = preprocess_images('data/images_v1/*.jpg', morphology=False)
 
 N = len(images)
 
 traj = np.zeros((480, 640, 3), dtype=np.uint8)
-x_orig, y_orig = 290, 200
+x_orig, y_orig = 290, 400
 
 drift = []
 inlier_ratios = []
@@ -37,25 +36,35 @@ for i, img in enumerate(images):
 	vo.update(img, i)
 	cur_t = vo.cur_t
 	orig_img = orig_images[i]
+	camera_traj = np.zeros((480, 640, 3), dtype=np.uint8)
 
 	# Wait til 3rd image
 	if i > 1:
 		x, y, z = cur_t[0][0], cur_t[1][0], cur_t[2][0]
 		inlier_ratios.append(vo.inlier_ratio)
-	else:
-		x, y, z = 0., 0., 0.
-		vo.cur_t = np.zeros((3, 1))
 
-	# Y-axis and Z-axis of ground truth has opposite directions of the VO estimation
-	true_transf_x, true_transf_y, true_transf_z = vo.trueX, vo.trueY, vo.trueZ
+		# For camera pose line visualization
+		lines_cur = vo.lines_cur.reshape(-1, 3)
+		a, b, c = lines_cur[0][0], lines_cur[0][1], lines_cur[0][2]
+		distances = utils.compute_perpendicular_distance(vo.px_cur, a, b, z)
+		# frame_perp_distances[i] = compute_mean_distance(distances)
 
-	# Key point visualization
-	if i > 2:
+		l = 20
+		x_x, x_y = vo.cur_R[0][0] * l, vo.cur_R[0][2] * l
+		z_x, z_y = -(vo.cur_R[2][0]) * l, -(vo.cur_R[2][2]) * l
+
+		# Key point visualization
 		for j, (new, old) in enumerate(zip(vo.px_cur, vo.px_ref)):
 			a, b = new.ravel()
 			c, d = old.ravel()
-			color = [255, 100, 0]
-			orig_img = cv2.circle(orig_img, (a, b), 2, color=(255, 100, 0), thickness=2, lineType=cv2.LINE_AA)
+			orig_img = cv2.circle(orig_img, (int(a), int(b)), 2, color=(255, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+	else:
+		x, y, z = 0., 0., 0.
+		vo.cur_t = np.zeros((3, 1))
+		x_x, x_y = 0, 0
+		z_x, z_y = 0, 0
+
+	true_transf_x, true_transf_y, true_transf_z = vo.trueX, vo.trueY, vo.trueZ
 
 	# Calculate translation error (drift)
 	d = euclidean_distance(np.array([x, y, z]), np.array([true_transf_x, true_transf_y, true_transf_z]))
@@ -90,18 +99,23 @@ for i, img in enumerate(images):
 
 	# 2D trajectory
 	k = 30
-	draw_x, draw_y = int(x * k) + x_orig, int(z * k) + y_orig
-	true_x, true_y = int(true_transf_x * k) + x_orig, int(true_transf_z * k) + y_orig
-
+	draw_x, draw_y = int(x * k) + x_orig, -int(z * k) + y_orig
+	true_x, true_y = int(true_transf_x * k) + x_orig, -int(true_transf_z * k) + y_orig
 	cv2.circle(traj, (true_x, true_y), 1, (0, i*(255), 0), 1, cv2.LINE_AA)
 	cv2.circle(traj, (draw_x, draw_y), 1, (0, 0, i*(255)), 1, cv2.LINE_AA)
 	cv2.rectangle(traj, (10, 20), (600, 60), (0, 0, 0), -1)
 
 	text = f"Estimated:    x={x:.3f} y={y:.3f} z={z:.3f}"
 	cv2.putText(traj, text, (20, 40), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
-
 	text_true = f"GroundTruth: x={true_transf_x:.3f} y={true_transf_y:.3f} z={true_transf_z:.3f}"
 	cv2.putText(traj, text_true, (20, 60), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1, 8)
+
+	# Camera viewport lines
+	x_x, x_y = utils.rotate_around(x_x, x_y, draw_x, draw_y, -45)
+	z_x, z_y = utils.rotate_around(z_x, z_y, draw_x, draw_y, -45)
+
+	cv2.line(camera_traj, (draw_x, draw_y), (int(x_x), int(x_y)), (0, 255, 255), 1, cv2.LINE_AA)
+	cv2.line(camera_traj, (draw_x, draw_y), (int(z_x), int(z_y)), (255, 255, 0), 1, cv2.LINE_AA)
 
 	cv2.namedWindow('Snake Robot Camera', cv2.WINDOW_NORMAL)
 	cv2.resizeWindow('Snake Robot Camera', W, H//2)
@@ -109,7 +123,8 @@ for i, img in enumerate(images):
 	hstack = np.hstack((orig_img, img))
 	cv2.imshow('Snake Robot Camera', hstack)
 
-	cv2.imshow('Trajectory', traj)
+	combined = cv2.add(traj, camera_traj)
+	cv2.imshow('Trajectory', combined)
 	cv2.waitKey(1)
 
 	xs.append(x)

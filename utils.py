@@ -67,6 +67,33 @@ def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs, save=True):
 	plt.show()
 
 
+def compute_perpendicular_distance(points, a, b, c):
+	perp_dist = []
+	for point in points:
+		#print(point)
+		x, y = point[0], point[1]
+		perp_dist.append(np.abs((a*x + b*y + c)/np.sqrt(a**2 + b**2)))
+	return perp_dist
+
+
+def draw_lines(frame, lines, pts1, pts2):
+	r, c = frame.shape
+
+	for r, pt1, pt2 in zip(lines, pts1, pts2):
+		color = tuple(np.random.randint(0, 255, 3).tolist())
+
+		x0, y0 = map(int, [0, -r[2] / r[1]])
+		x1, y1 = map(int, [c, -(r[2] + r[0] * c) / r[1]])
+
+		frame = cv2.line(frame, (x0, y0), (x1, y1), color, 1)
+		frame = cv2.circle(frame, tuple(pt1), 5, color, -1)
+
+		plt.imshow(frame)
+		plt.show()
+
+	return frame
+
+
 def preprocess_images(filepath, default=False, morphology=False):
 	out = []
 	images = [cv2.imread(file, 0) for file in sorted(glob.glob(filepath))]
@@ -155,3 +182,13 @@ def rotation_matrix_to_euler_angles(R):
 
 	return np.array([x, y, z])
 
+
+def rotate_around(px, py, cx, cy, angle):
+	s = np.sin(angle)
+	c = np.cos(angle)
+	x_new = px * c - py * s
+	y_new = px * s + py * c
+	px = x_new + cx
+	py = y_new + cy
+
+	return px, py
