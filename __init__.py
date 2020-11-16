@@ -17,12 +17,9 @@ vo = VisualOdometry(cam, annotations='./data/transformed_ground_truth_vol2.txt')
 vo_eval = Eval(vo)
 vo_visualizer = VO_Visualizer(vo, W, H)
 
-orig_images = preprocess_images('data/images_v1/*.jpg', default=True)[:200]
-images = preprocess_images('data/images_v1/*.jpg', morphology=False)[:200]
+orig_images = preprocess_images('data/images_v1/*.jpg', default=True)
+images = preprocess_images('data/images_v1/*.jpg', morphology=False)
 N = len(images)
-
-traj = np.zeros((480, 640, 3), dtype=np.uint8)
-display_img = np.zeros((1080, 1920, 3))
 
 for i, img in enumerate(images):
 	vo.update(img, i)
@@ -30,7 +27,7 @@ for i, img in enumerate(images):
 	vo_visualizer.show(img, orig_images[i])
 
 	x, y, z = vo.cur_t[0][0], vo.cur_t[1][0], vo.cur_t[2][0]
-	true_x, true_y, true_z = vo.true_x, vo.true_y, vo.true_z
+	true_x, true_y, true_z = vo.true_t[0][0], vo.true_t[1][0], vo.true_t[2][0]
 
 	# For camera pose line visualization
 	if i > 0:
@@ -40,7 +37,7 @@ for i, img in enumerate(images):
 		#frame_perp_distances[i] = compute_mean_distance(distances)
 
 
-cv2.imwrite('plots/map.png', traj)
+cv2.imwrite('plots/map.png', vo_visualizer.traj)
 plot_3d_traj(vo_eval.xs, vo_eval.ys, vo_eval.zs, vo_eval.true_xs, vo_eval.true_ys, vo_eval.true_zs)
 plot_inlier_ratio(vo_eval.inlier_ratios)
 plot_drift(vo_eval.translation_error)
@@ -51,6 +48,15 @@ plot_orientation_angle(vo_eval.theta_ys_true, vo_eval.theta_ys, 'y_angle')
 plot_orientation_angle(vo_eval.theta_zs_true, vo_eval.theta_zs, 'z_angle')
 
 print(f'-- Evaluation')
-print(f'Total translation error: {np.sum(vo_eval.translation_error):.3f}')
-print(f'Total rotation error: {np.sum(vo_eval.rotation_errors):.3f}')
+print(f'Total translation error: {np.mean(vo_eval.translation_error):.3f}')
+print(f'Total rotation error: {np.mean(vo_eval.rotation_errors):.3f}')
 print(f'Average RANSAC inlier ratio: {np.mean(vo_eval.inlier_ratios):.3f}')
+
+
+rel_errors = vo_eval.calc_relative_errors()
+ave_t_err, ave_r_err = vo_eval.compute_overall_err(rel_errors, reduce='sum')
+
+print(f'Overall relative translation error: {ave_t_err:.3f}')
+print(f'Overall relative rotation error: {ave_r_err:.3f}')
+
+vo_eval.plot_relative_error(rel_errors)

@@ -57,6 +57,9 @@ class VisualOdometry:
         self.cur_t = np.zeros((3, 1))
         self.cur_R = np.eye(3)
 
+        self.true_t = np.zeros((3, 1))
+        self.true_R = np.eye(3)
+
         self.prev_points = None
         self.cur_points = None
         self.prev_desc = None
@@ -69,7 +72,6 @@ class VisualOdometry:
         self.inlier_ratio = 0
         self.focal = cam.fx
         self.pp = (cam.cx, cam.cy)
-        self.true_x, self.true_y, self.true_z = 0, 0, 0
 
         brief_extractor = detector.BRIEF_Extractor(**BRIEF_PARAMS)
         #orb_extractor = detector.ORB(as_extractor=True)
@@ -101,12 +103,13 @@ class VisualOdometry:
         x = float(ss[xi])
         y = float(ss[yi])
         z = float(ss[zi])
-        self.true_x, self.true_y, self.true_z = x, y, z
+        self.true_t = np.array([[x], [y], [z]])
+        #self.true_x, self.true_y, self.true_z = x, y, z
 
         r11, r12, r13 = float(ss[0]), float(ss[1]), float(ss[2])
         r21, r22, r23 = float(ss[4]), float(ss[5]), float(ss[6])
         r31, r32, r33 = float(ss[8]), float(ss[9]), float(ss[10])
-        self.trueR = np.array([r11, r12, r13, r21, r22, r23, r31, r32, r33]).reshape((3, 3))
+        self.true_R = np.array([r11, r12, r13, r21, r22, r23, r31, r32, r33]).reshape((3, 3))
 
         return np.sqrt((x - x_prev)**2 + (y - y_prev)**2 + (z - z_prev)**2)
 

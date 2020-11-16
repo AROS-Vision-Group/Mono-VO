@@ -35,14 +35,14 @@ class VO_Visualizer:
 		vo = self.vo
 		i = self.vo.frame_id
 		x, y, z = vo.cur_t[0][0], vo.cur_t[1][0], vo.cur_t[2][0]
-		true_x, true_y, true_z = vo.true_x, vo.true_y, vo.true_z
+		true_x, true_y, true_z = self.vo.true_t[0][0], self.vo.true_t[1][0], self.vo.true_t[2][0]
 
 		# 2D trajectory
 		k = 30
 		draw_x, draw_y = int(x * k) + x_orig, -int(z * k) + y_orig
-		true_x, true_y = int(true_x * k) + x_orig, -int(true_z * k) + y_orig
+		draw_true_x, draw_true_y = int(true_x * k) + x_orig, -int(true_z * k) + y_orig
 
-		cv2.circle(self.traj, (true_x, true_y), 1, (0, i * (255), 0), 1, cv2.LINE_AA)
+		cv2.circle(self.traj, (draw_true_x, draw_true_y), 1, (0, i * (255), 0), 1, cv2.LINE_AA)
 		cv2.circle(self.traj, (draw_x, draw_y), 1, (0, 0, i * (255)), 1, cv2.LINE_AA)
 		cv2.rectangle(self.traj, (10, 20), (600, 60), (0, 0, 0), -1)
 
