@@ -1,7 +1,7 @@
 # Visual Odometry implementation in Python
 
 ### 2D Trajectory 
-![2D Trajectory](https://github.com/AROS-Vision-Group/visual-odometry-pipeline/blob/main/gifs/egomotion_axes_tilted45deg.gif?raw=true)
+![2D Trajectory](https://github.com/AROS-Vision-Group/visual-odometry-pipeline/blob/main/gifs/egomotion_axes_tilted45deg.gif?raw=true)  
 Red trajectory is estimated, and green is ground truth.
 
 ## Features Detected and Processed Frame
