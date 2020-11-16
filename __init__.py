@@ -17,8 +17,8 @@ vo = VisualOdometry(cam, annotations='./data/transformed_ground_truth_vol2.txt')
 vo_eval = Eval(vo)
 vo_visualizer = VO_Visualizer(vo, W, H)
 
-orig_images = preprocess_images('data/images_v2/*.jpg', default=True)
-images = preprocess_images('data/images_v2/*.jpg', morphology=False)
+orig_images = preprocess_images('data/images_v1/*.jpg', default=True)
+images = preprocess_images('data/images_v1/*.jpg', morphology=False)
 N = len(images)
 
 for i, img in enumerate(images):

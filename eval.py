@@ -248,6 +248,7 @@ class Eval:
 
 		# TODO: Save to file, find where to put the line below
 		# cv2.imwrite('plots/map.png', vo_visualizer.traj)
+		# TODO: Make plot for relative yaw, pitch, roll error 
 
 
 
