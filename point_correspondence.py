@@ -27,7 +27,8 @@ class OpticalFlowTracker(PointCorrespondenceFinderInterface):
 	def get_corresponding_points(self, img_ref=None, img_cur=None, px_ref=None, px_cur=None, des_ref=None, des_cur=None):
 		assert (img_ref is not None and img_cur is not None and px_ref is not None)
 
-		kp2, st, err = cv2.calcOpticalFlowPyrLK(img_ref, img_cur, px_ref, None, **self.params)  # shape: [k,2] [k,1] [k,1]
+		kp2, st, err = cv2.calcOpticalFlowPyrLK(img_ref, img_cur, px_ref, None,
+												**self.params)  # shape: [k,2] [k,1] [k,1]
 		st = st.reshape(st.shape[0])
 
 		kp1 = px_ref[st == 1]

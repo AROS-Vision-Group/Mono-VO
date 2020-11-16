@@ -44,13 +44,8 @@ class ShiTomasiDetector(DetectorDescriptorInterface):
 		super().__init__(des_extractor, as_extractor=False)
 
 	def get_keypoints(self, frame):
-		corners = cv2.goodFeaturesToTrack(frame,
-										  maxCorners=5000,
-										  qualityLevel=0.1,
-										  minDistance=10,
-										  blockSize=10)
-
-		kp = [cv2.KeyPoint(c[0][1], c[0][1], 1.0) for c in corners]  # np.squeeze(corners)]
+		corners = cv2.goodFeaturesToTrack(frame, **self.params)
+		kp = [cv2.KeyPoint(x=f[0][0], y=f[0][1], _size=1) for f in corners]
 
 		return kp
 

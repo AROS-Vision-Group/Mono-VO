@@ -1,6 +1,8 @@
 import utils
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
+import sys
 
 
 class Eval:
@@ -11,38 +13,15 @@ class Eval:
 		self.vo_poses = []
 		self.gt_poses = []
 		self.inlier_ratios = []
-		self.translation_error = []
-		self.rotation_errors = []
-		self.xs, self.ys, self.zs = [], [], []
-		self.true_xs, self.true_ys, self.true_zs = [], [], []
-		self.theta_xs, self.theta_ys, self.theta_zs = [], [], []
-		self.theta_xs_true, self.theta_ys_true, self.theta_zs_true = [], [], []
-		self.rotation_errors = []
+		self.run_times = []
 
-	def compute_translation_error(self):
-		""" Update estimated and true coordinates and compute translation error (drift)"""
-		x, y, z = self.vo.cur_t[0][0], self.vo.cur_t[1][0], self.vo.cur_t[2][0]
-		true_x, true_y, true_z = self.vo.true_t[0][0], self.vo.true_t[1][0], self.vo.true_t[2][0]
-		self.xs.append(x)
-		self.ys.append(y)
-		self.zs.append(z)
-
-		self.true_xs.append(true_x)
-		self.true_ys.append(true_y)
-		self.true_zs.append(true_z)
-
-		d = utils.euclidean_distance(np.array([x, y, z]), np.array([true_x, true_y, true_z]))
-		self.translation_error.append(d)
-
-	def get_relative_poses(self, poses_type):
+	def get_relative_poses(self, abs_poses):
 		""" Calculates the relative poses from the absolute ones
 
-		:param poses_type: groundt truth ('gt') or estimated ('vo')
+		:param abs_poses: absolute poses (4x4 array)
 		:return: rel_poses: list of poses, each relative to the previous pose
 		"""
-		assert poses_type == 'vo' or poses_type == 'gt'
 
-		abs_poses = self.vo_poses if poses_type == 'vo' else self.gt_poses
 		rel_poses = []
 		for i in range(len(abs_poses)-1):
 			pose1, pose2 = abs_poses[i], abs_poses[i+1]
@@ -53,13 +32,13 @@ class Eval:
 
 		return rel_poses
 
-	def get_rotation_error(self, pose_error):
+	def rotation_error(self, pose_error):
 		"""Compute rotation error
-		Args:
-			pose_error (4x4 array): relative pose error
-		Returns:
-			rot_error (float): rotation error
+
+		:param pose_error: relative pose error (4x4 array)
+		:return: rot_error: rotation error (float)
 		"""
+
 		a = pose_error[0, 0]
 		b = pose_error[1, 1]
 		c = pose_error[2, 2]
@@ -67,120 +46,90 @@ class Eval:
 		rot_error = np.arccos(max(min(d, 1.0), -1.0))
 		return rot_error
 
-	def get_translation_error(self, pose_error):
+	def translation_error(self, pose_error):
 		"""Compute translation error
-		Args:
-			pose_error (4x4 array): relative pose error
-		Returns:
-			trans_error (float): translation error
+
+		:param pose_error: relative pose error (4x4 array)
+		:return: trans_error: translation error as euclidean distance (float)
 		"""
+
 		dx = pose_error[0, 3]
 		dy = pose_error[1, 3]
 		dz = pose_error[2, 3]
 		trans_error = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+
 		return trans_error
 
-	def calc_relative_errors(self):
-		""" Calculate relative erros across frames
+	def compute_errors(self, gt_poses, vo_poses):
+		""" Calculate translation and rotation errors
 
-		:return: err (list list): [rotation error, translation error]
+		:param gt_poses: ground-truth poses (4x4 array)
+		:param vo_poses: estimated poses (4x4 array)
+		:return: rotation errors, translation errors
 		"""
-		err = []
 
-		rel_vo_poses = self.get_relative_poses('vo')
-		rel_gt_poses = self.get_relative_poses('gt')
+		trans_errors = []
+		rot_errors = []
 
-		for vo_pose, gt_pose in zip(rel_vo_poses, rel_gt_poses):
-			# compute rotation and translation error
-			pose_error = np.dot(
-				np.linalg.inv(vo_pose),
-				gt_pose
+		for gt_rel, vo_rel in zip(gt_poses, vo_poses):
+			rel_error = np.dot(
+				np.linalg.inv(gt_rel),
+				vo_rel
 			)
+			trans_errors.append(self.translation_error(rel_error))
+			rot_errors.append(self.rotation_error(rel_error))
 
-			r_err = self.get_rotation_error(pose_error)
-			t_err = self.get_translation_error(pose_error)
+		return rot_errors, trans_errors
 
-			err.append([r_err, t_err])
+	def compute_orientations(self, poses):
+		""" Compute orientation (yaw, pitch, roll) for each pose """
+		yaw_list, pitch_list, roll_list = [], [], []
+		for pose in poses:
+			R = pose[:3, :3]
+			roll, pitch, yaw = utils.rotation_matrix_to_euler_angles(R)
+			yaw_list.append(yaw)
+			pitch_list.append(pitch)
+			roll_list.append(roll)
 
-		return err
+		return yaw_list, pitch_list, roll_list
 
-	def compute_overall_err(self, err, reduce='average'):
-		"""Compute average or summed translation & rotation errors
-		Args:
-			seq_err (list list): [[r_err, t_err],[r_err, t_err],...]
-				- r_err (float): rotation error
-				- t_err (float): translation error
-		Returns:
-			ave_t_err (float): average translation error
-			ave_r_err (float): average rotation error
+
+	def compute_ATE(self, gt_poses, vo_poses):
+		""" Compute RMSE of ATE (Absolute Trajectory Error)
+
+		:param gt_poses: ground-truth poses (4x4 array)
+		:param vo_poses: estimated poses (4x4 array)
+		:return: ate: absolute trajectory error (float)
 		"""
+		errors = []
 
-		print(np.mean(np.array(err)))
-		print(np.sum(np.array(err)))
-		t_err = 0
-		r_err = 0
+		for gt_pose, vo_pose in zip(gt_poses, vo_poses):
+			gt_xyz = gt_pose[:3, 3]
+			vo_xyz = vo_pose[:3, 3]
 
-		seq_len = len(err)
+			align_err = gt_xyz - vo_xyz
+			errors.append(np.sqrt(np.sum(align_err ** 2)))
 
-		if seq_len > 0:
-			for item in err:
-				r_err += item[0]
-				t_err += item[1]
-			if reduce == 'average':
-				r_err = r_err / seq_len
-				t_err = t_err / seq_len
-			return r_err, t_err
-		else:
-			return 0, 0
+		ate = np.sqrt(np.mean(np.array(errors)))
+		return ate
 
-	def compute_rotation_error(self):
-		""" Compute rotation error """
-		if self.vo.frame_id > 1:
-			R1 = self.vo.cur_R
-			R2 = self.vo.true_R
 
-			R2_inv = np.transpose(R2)
-			mul_R = R1 @ R2_inv
+	def compute_AOE(self, gt_poses, vo_poses):
+		""" Compute Absolute Orientation Error
 
-			theta_x = np.arctan2(R1[2, 1], R1[2, 2])
-			theta_y = np.arctan2(-R1[2, 0], np.sqrt(R1[2, 1] ** 2 + R1[2, 2] ** 2))
-			theta_z = np.arctan2(R1[1, 0], R1[0, 0])
+		:param gt_poses: ground-truth poses (4x4 array)
+		:param vo_poses: estimated poses (4x4 array)
+		:return: aoe: absolute orientation error (float)
+		"""
+		rot_errors = []
+		for gt_pose, vo_pose in zip(gt_poses, vo_poses):
+			pose_error = np.dot(
+				np.linalg.inv(gt_pose),
+				vo_pose
+			)
+			rot_errors.append(self.rotation_error(pose_error))
 
-			theta_x_true = np.arctan2(R2[2, 1], R2[2, 2])
-			theta_y_true = np.arctan2(-R2[2, 0], np.sqrt(R2[2, 1] ** 2 + R2[2, 2] ** 2))
-			theta_z_true = np.arctan2(R2[1, 0], R2[0, 0])
-
-			self.theta_xs.append(theta_x)
-			self.theta_ys.append(theta_y)
-			self.theta_zs.append(theta_z)
-
-			self.theta_xs_true.append(theta_x_true)
-			self.theta_ys_true.append(theta_y_true)
-			self.theta_zs_true.append(theta_z_true)
-
-			theta_sum = np.abs(theta_x) + np.abs(theta_y) + np.abs(theta_z)
-			self.rotation_errors.append(theta_sum)
-
-	def plot_relative_error(self, err, save=True):
-		a = np.array(err)
-		r_err, t_err = a[:, 0], a[:, 1]
-
-		plt.plot([i for i in range(len(r_err))], r_err, color='blue')
-		plt.title('Relative rotation error across frames')
-		plt.xlabel('frame #')
-		plt.ylabel('deg')
-		if save:
-			plt.savefig('plots/relative_rotation_error.png', bbox_inches='tight')
-		plt.show()
-
-		plt.plot([i for i in range(len(t_err))], t_err, color='blue')
-		plt.title('Relative translation error across frames')
-		plt.xlabel('frame #')
-		plt.ylabel('%')
-		if save:
-			plt.savefig('plots/relative_translation_error.png', bbox_inches='tight')
-		plt.show()
-
+		return np.array(rot_errors)
 
 	def add_pose(self):
 		hom_row = np.array([[0, 0, 0, 1]])
@@ -194,13 +143,114 @@ class Eval:
 		self.vo_poses.append(vo_pose)
 		self.gt_poses.append(gt_pose)
 
+	def get_positions(self, poses):
+		xs, ys, zs = [], [], []
+		for pose in poses:
+			xs.append(pose[0, 3])
+			ys.append(pose[1, 3])
+			zs.append(pose[2, 3])
+
+		return xs, ys, zs
+
 	def update(self):
 		self.add_pose()
+		self.run_times.append(self.vo.cur_run_time)
 
-		self.compute_translation_error()
-		self.compute_rotation_error()
 		if self.vo.frame_id > 0:
 			self.inlier_ratios.append(self.vo.inlier_ratio)
+
+	def evaluate(self):
+		# Absolute poses
+		gt_poses, vo_poses = self.gt_poses, self.vo_poses
+
+		# Relative poses
+		rel_gt_poses, rel_vo_poses = self.get_relative_poses(gt_poses), self.get_relative_poses(vo_poses)
+
+		# ---- Absolute Errors ----
+		rot_errors, trans_errors = self.compute_errors(gt_poses, vo_poses)
+
+		utils.plot_rotation_erros(rot_errors,
+								  title='Absolute Rotation Error',
+								  save_path='./plots/rotation_error')
+		utils.plot_translation_error(trans_errors,
+									 title="Absolute Translation Error",
+									 save_path='./plots/translation_error.png')
+
+		# Absolute Trajectory Error (ATE)
+		ate = np.sqrt(np.mean(np.array(trans_errors) ** 2))  # Root Mean Squared Error
+		print(f'Absolute Trajectory Error (ATE) [m]: {ate:.6f}')
+
+		# Absolute Orientation Error (AOE)
+		aoe = np.mean(rot_errors)
+		print(f'Absolute Orientation Error (AOE) [deg]: {aoe*180 / np.pi:.6f}')
+
+		# ---- Relative Errors ----
+		rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
+
+		utils.plot_rotation_erros(rel_rot_errors,
+								  title='Relative Rotation Error',
+								  save_path='./plots/rel_rotation_error')
+		utils.plot_translation_error(rel_trans_errors,
+									 title="Relative Translation Error",
+									 save_path='./plots/rel_translation_error.png')
+
+		# Relative Trajectory Error (RTE)
+		rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
+		print(f'Relative Trajectory Error (RTE) [m]: {rte:.6f}')
+
+		# Relative Rotation Error (RRE)
+		rre = np.sqrt(np.mean(np.array(rel_rot_errors) ** 2))
+		print(f'Relative Rotation Error (RRE) [deg]: {rre*180 / np.pi:.6f}')
+
+		# ---- Yaw, Pitch, Roll ----
+		yaw, pitch, roll = self.compute_orientations(vo_poses)
+		true_yaw, true_pitch, true_roll = self.compute_orientations(gt_poses)
+
+		rel_yaw, rel_pitch, rel_roll = self.compute_orientations(rel_vo_poses)
+		true_rel_yaw, true_rel_pitch, true_rel_roll = self.compute_orientations(rel_gt_poses)
+
+		# ---- RANSAC Inlier Ratio ----
+		inlier_ratios = self.inlier_ratios
+		print(f'RANSAC inlier ratio: {np.mean(inlier_ratios):.3f}')
+
+		# ---- Processing Time ----
+		run_time = np.mean(self.run_times)
+		print(f'Runtime: {run_time:.3f}s')
+
+		# -------------------------
+		# Extract positions for 3d plot
+		xs, ys, zs = self.get_positions(vo_poses)
+		true_xs, true_ys, true_zs = self.get_positions(gt_poses)
+
+		utils.plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs)
+		utils.plot_inlier_ratio(self.inlier_ratios)
+
+		utils.plot_orientation_angle(true_yaw, yaw, 'yaw',
+									 title='Yaw across frames',
+									 save_path='./plots/yaw.png')
+
+		utils.plot_orientation_angle(true_pitch, pitch, 'pitch',
+									 title='Pitch across frames',
+									 save_path='./plots/pitch.png')
+		utils.plot_orientation_angle(true_roll, roll, 'roll',
+									 title='Roll across frames',
+									 save_path='./plots/roll.png')
+
+		utils.plot_orientation_angle(true_rel_yaw, rel_yaw, 'rel_yaw',
+									 title='Relative yaw across frames',
+									 save_path='./plots/rel_yaw.png')
+		utils.plot_orientation_angle(true_rel_pitch, rel_pitch, 'rel_pitch',
+									 title='Relative pitch across frames',
+									 save_path='./plots/rel_pitch.png')
+		utils.plot_orientation_angle(true_rel_roll, rel_roll, 'rel_roll',
+									 title='Relative roll across frames',
+									 save_path='./plots/rel_roll.png')
+
+		# TODO: Save to file, find where to put the line below
+		# cv2.imwrite('plots/map.png', vo_visualizer.traj)
+
+
+
 
 
 
