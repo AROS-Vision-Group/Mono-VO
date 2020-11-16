@@ -15,9 +15,8 @@ cam = PinholeCamera(width=float(W), height=float(H), fx=1263.1578, fy=1125, cx=9
 vo = VisualOdometry(cam, annotations='./data/transformed_ground_truth_vol2.txt')
 vo_eval = Eval(vo)
 
-num_frames = len(os.listdir('data/images_v1/'))
-orig_images = preprocess_images('data/images_v1/*.jpg', default=True)
-images = preprocess_images('data/images_v1/*.jpg', morphology=False)
+orig_images = preprocess_images('data/images_uw_denoized/*.jpg', default=True)[:200]
+images = preprocess_images('data/images_uw_denoized/*.jpg', morphology=False)[:200]
 N = len(images)
 
 traj = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -31,18 +30,18 @@ for i, img in enumerate(images):
 	camera_traj = np.zeros((480, 640, 3), dtype=np.uint8)
 
 	x, y, z = vo.cur_t[0][0], vo.cur_t[1][0], vo.cur_t[2][0]
-	trueX, trueY, trueZ = vo.trueX, vo.trueY, vo.trueZ
+	true_x, true_y, true_z = vo.true_x, vo.true_y, vo.true_z
 
 	# For camera pose line visualization
 	if i > 0:
-		lines_cur = vo.lines_cur.reshape(-1, 3)
-		a, b, c = lines_cur[0][0], lines_cur[0][1], lines_cur[0][2]
-		distances = utils.compute_perpendicular_distance(vo.px_cur, a, b, z)
+		cur_lines = vo.cur_lines.reshape(-1, 3)
+		a, b, c = cur_lines[0][0], cur_lines[0][1], cur_lines[0][2]
+		distances = utils.compute_perpendicular_distance(vo.cur_points, a, b, z)
 		#frame_perp_distances[i] = compute_mean_distance(distances)
 
 	# Key point visualization
 	if i > 0:
-		for j, (new, old) in enumerate(zip(vo.px_cur, vo.px_ref)):
+		for j, (new, old) in enumerate(zip(vo.cur_points, vo.prev_points)):
 			a, b = new.ravel()
 			c, d = old.ravel()
 			orig_img = cv2.circle(orig_img, (int(a), int(b)), 2, color=(255, 255, 0), thickness=2, lineType=cv2.LINE_AA)

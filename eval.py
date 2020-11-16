@@ -19,7 +19,7 @@ class Eval:
 	def compute_translation_error(self):
 		""" Update estimated and true coordinates and compute translation error (drift)"""
 		x, y, z = self.vo.cur_t[0][0], self.vo.cur_t[1][0], self.vo.cur_t[2][0]
-		trueX, trueY, trueZ = self.vo.trueX, self.vo.trueY, self.vo.trueZ
+		trueX, trueY, trueZ = self.vo.true_x, self.vo.true_y, self.vo.true_z
 		self.xs.append(x)
 		self.ys.append(y)
 		self.zs.append(z)

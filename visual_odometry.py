@@ -50,26 +50,26 @@ class VisualOdometry:
         self.frame_stage = 0
         self.frame_id = 0
         self.cam = cam
-        self.new_frame = None
-        self.last_frame = None
+        self.cur_frame = None
+        self.prev_frame = None
 
         self.prev_t = None
         self.cur_t = np.zeros((3, 1))
         self.cur_R = np.eye(3)
 
-        self.px_ref = None
-        self.px_cur = None
-        self.des_ref = None
-        self.des_cur = None
+        self.prev_points = None
+        self.cur_points = None
+        self.prev_desc = None
+        self.cur_desc = None
 
-        self.all_des_cur = None
-        self.all_des_ref = None
+        self.all_cur_desc = None
+        self.all_prev_desc = None
 
-        self.lines_cur = None
+        self.cur_lines = None
         self.inlier_ratio = 0
         self.focal = cam.fx
         self.pp = (cam.cx, cam.cy)
-        self.trueX, self.trueY, self.trueZ = 0, 0, 0
+        self.true_x, self.true_y, self.true_z = 0, 0, 0
 
         brief_extractor = detector.BRIEF_Extractor(**BRIEF_PARAMS)
         #orb_extractor = detector.ORB(as_extractor=True)
@@ -101,7 +101,7 @@ class VisualOdometry:
         x = float(ss[xi])
         y = float(ss[yi])
         z = float(ss[zi])
-        self.trueX, self.trueY, self.trueZ = x, y, z
+        self.true_x, self.true_y, self.true_z = x, y, z
 
         r11, r12, r13 = float(ss[0]), float(ss[1]), float(ss[2])
         r21, r22, r23 = float(ss[4]), float(ss[5]), float(ss[6])
@@ -118,62 +118,62 @@ class VisualOdometry:
         raise NotImplementedError("Relative Scale Method not implemted yet.")
 
     def process_initial_frame(self):
-        self.px_ref = self.detector.get_keypoints(self.new_frame)
+        self.prev_points = self.detector.get_keypoints(self.cur_frame)
         if self.correspondence_method == 'matching':
-            self.px_ref, self.des_ref = self.detector.get_descriptors(self.new_frame, self.px_ref)
-            self.all_des_ref = self.des_ref
+            self.prev_points, self.prev_desc = self.detector.get_descriptors(self.cur_frame, self.prev_points)
+            self.all_prev_desc = self.prev_desc
 
-        self.px_ref = np.array([x.pt for x in self.px_ref], dtype=np.float32)
-        self.all_px_ref = self.px_ref
+        self.prev_points = np.array([x.pt for x in self.prev_points], dtype=np.float32)
+        self.all_px_ref = self.prev_points
         self.frame_stage = STAGE_DEFAULT_FRAME
 
     def process_frame(self, frame_id):
         if self.correspondence_method == 'tracking':
-            self.px_ref, self.px_cur = self.point_corr_computer.get_corresponding_points(img_ref=self.last_frame,
-                                                                                         img_cur=self.new_frame,
-                                                                                         px_ref=self.px_ref)
+            self.prev_points, self.cur_points = self.point_corr_computer.get_corresponding_points(img_ref=self.prev_frame,
+                                                                                                  img_cur=self.cur_frame,
+                                                                                                  px_ref=self.prev_points)
         else:
-            self.px_cur = self.detector.get_keypoints(self.new_frame)
-            self.px_cur, self.des_cur = self.detector.get_descriptors(self.new_frame, self.px_cur)
-            self.px_cur = np.array([x.pt for x in self.px_cur], dtype=np.float32)
-            temp_px = self.px_cur
-            temp_des = self.des_cur
+            self.cur_points = self.detector.get_keypoints(self.cur_frame)
+            self.cur_points, self.cur_desc = self.detector.get_descriptors(self.cur_frame, self.cur_points)
+            self.cur_points = np.array([x.pt for x in self.cur_points], dtype=np.float32)
+            temp_px = self.cur_points
+            temp_des = self.cur_desc
 
-            self.px_ref, self.px_cur = self.point_corr_computer.get_corresponding_points(px_ref=self.all_px_ref,
-                                                                                         px_cur=self.px_cur,
-                                                                                         des_ref=self.all_des_ref,
-                                                                                         des_cur=self.des_cur)
+            self.prev_points, self.cur_points = self.point_corr_computer.get_corresponding_points(px_ref=self.all_px_ref,
+                                                                                                  px_cur=self.cur_points,
+                                                                                                  des_ref=self.all_prev_desc,
+                                                                                                  des_cur=self.cur_desc)
             self.all_px_ref = temp_px
-            self.all_des_ref = temp_des
+            self.all_prev_desc = temp_des
 
-        E, mask = cv2.findEssentialMat(self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, method=cv2.RANSAC,
+        E, mask = cv2.findEssentialMat(self.cur_points, self.prev_points, focal=self.focal, pp=self.pp, method=cv2.RANSAC,
                                        prob=0.999, threshold=1.0)
 
         self.inlier_ratio = np.sum(mask) / (len(mask) + 1)
-        self.lines_cur = cv2.computeCorrespondEpilines(self.px_ref.reshape(-1, 1, 2), 2, E)
+        self.cur_lines = cv2.computeCorrespondEpilines(self.prev_points.reshape(-1, 1, 2), 2, E)
 
-        _, R, t, mask = cv2.recoverPose(E, self.px_cur, self.px_ref, focal=self.focal, pp=self.pp, mask=mask)
+        _, R, t, mask = cv2.recoverPose(E, self.cur_points, self.prev_points, focal=self.focal, pp=self.pp, mask=mask)
 
         absolute_scale = self.get_absolute_scale(frame_id)
         if absolute_scale > 0.01:
             self.cur_t = self.cur_t + absolute_scale * self.cur_R.dot(t)
             self.cur_R = R.dot(self.cur_R)
 
-        if self.correspondence_method == 'tracking' and self.px_ref.shape[0] < kMinNumFeature: #or frame_id % 50 == 0:
-            self.px_cur = self.detector.get_keypoints(self.new_frame)
-            self.px_cur = np.array([x.pt for x in self.px_cur], dtype=np.float32)
+        if self.correspondence_method == 'tracking' and self.prev_points.shape[0] < kMinNumFeature: #or frame_id % 50 == 0:
+            self.cur_points = self.detector.get_keypoints(self.cur_frame)
+            self.cur_points = np.array([x.pt for x in self.cur_points], dtype=np.float32)
 
-        self.px_ref = self.px_cur
-        self.des_ref = self.des_cur
+        self.prev_points = self.cur_points
+        self.prev_desc = self.cur_desc
 
     def update(self, img, frame_id):
         assert (img.ndim == 2 and img.shape[0] == self.cam.height and img.shape[1] == self.cam.width), \
             "Frame: provided image has not the same size as the camera model or image is not grayscale"
 
-        self.new_frame = img
+        self.cur_frame = img
         if self.frame_stage == STAGE_DEFAULT_FRAME:
             self.process_frame(frame_id)
         elif self.frame_stage == STAGE_FIRST_FRAME:
             self.process_initial_frame()
-        self.last_frame = self.new_frame
+        self.prev_frame = self.cur_frame
         self.frame_id = frame_id

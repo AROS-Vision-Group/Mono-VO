@@ -57,7 +57,7 @@ def plot_rotation_erros(rot_errors, save=True):
 def visualize_2d_traj(vo, traj, camera_traj, x_orig=290, y_orig=400):
 	i = vo.frame_id
 	x, y, z = vo.cur_t[0][0], vo.cur_t[1][0], vo.cur_t[2][0]
-	trueX, trueY, trueZ = vo.trueX, vo.trueY, vo.trueZ
+	trueX, trueY, trueZ = vo.true_x, vo.true_y, vo.true_z
 
 	# 2D trajectory
 	k = 30
@@ -90,7 +90,7 @@ def visualize_2d_traj(vo, traj, camera_traj, x_orig=290, y_orig=400):
 
 def make_2d_traj(traj, vo, draw_x, draw_y):
 	x, y, z = vo.x, vo.y, vo.z
-	trueX, trueY, trueZ = vo.trueX, vo.trueY, vo.trueZ
+	trueX, trueY, trueZ = vo.true_x, vo.true_y, vo.true_z
 
 	k = 30
 	draw_x, draw_y = int(x * k) + x_orig, -int(z * k) + y_orig
@@ -147,6 +147,13 @@ def draw_lines(frame, lines, pts1, pts2):
 
 	return frame
 
+def adjust_gamma(image, gamma=1.0):
+    # source: https://www.pyimagesearch.com/2015/10/05/opencv-gamma-correction/
+    img = image.copy()
+    inverted_gamma = 1.0 / gamma
+    look_up_table = np.array([((i / 255.0) ** inverted_gamma) * 255
+                      for i in np.arange(0, 256)]).astype("uint8")
+    return cv2.LUT(img , look_up_table)
 
 def preprocess_images(filepath, default=False, morphology=False):
 	out = []
@@ -156,14 +163,20 @@ def preprocess_images(filepath, default=False, morphology=False):
 	for img in images:
 		processed_img = img.copy()
 		cv2.normalize(img.astype('float'), img, 0.0, 1.0, cv2.NORM_MINMAX)
-		processed_img = cv2.GaussianBlur(processed_img, (7, 7), 0)
-		processed_img = cv2.adaptiveThreshold(processed_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, 2)
 		if morphology:
+			processed_img = cv2.GaussianBlur(processed_img, (7, 7), 0)
+			processed_img = cv2.adaptiveThreshold(processed_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 7, 2)
 			kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, ksize=(3, 3))
 			# img_erosion = cv2.erode(img, kernel, iterations=1)
 			processed_img = cv2.dilate(processed_img, kernel, iterations=3)
 			processed_img = cv2.morphologyEx(processed_img, cv2.MORPH_CLOSE, kernel, iterations=1)
 			# processed_img = cv2.morphologyEx(processed_img, cv2.MORPH_OPEN, kernel, iterations=1)
+		else:
+			processed_img = cv2.GaussianBlur(processed_img, (7, 7), 0)
+			processed_img = adjust_gamma(processed_img, 1.5)
+			cv2.equalizeHist(processed_img, processed_img)
+			#processed_img = cv2.adaptiveThreshold(processed_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, 2)
+			processed_img = processed_img
 		out.append(processed_img)
 	return out
 
