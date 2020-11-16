@@ -6,6 +6,7 @@ from pinhole_camera import PinholeCamera
 from utils import preprocess_images, plot_3d_traj, plot_inlier_ratio, euclidean_distance, plot_drift, plot_rotation_erros, plot_orientation_angle
 import utils
 from eval import Eval
+from visualizer import VO_Visualizer
 
 # For UW simulation dataset
 W = 1920
@@ -14,9 +15,10 @@ H = 1080
 cam = PinholeCamera(width=float(W), height=float(H), fx=1263.1578, fy=1125, cx=960, cy=540)
 vo = VisualOdometry(cam, annotations='./data/transformed_ground_truth_vol2.txt')
 vo_eval = Eval(vo)
+vo_visualizer = VO_Visualizer(vo, W, H)
 
-orig_images = preprocess_images('data/images_uw_denoized/*.jpg', default=True)[:200]
-images = preprocess_images('data/images_uw_denoized/*.jpg', morphology=False)[:200]
+orig_images = preprocess_images('data/images_v1/*.jpg', default=True)[:200]
+images = preprocess_images('data/images_v1/*.jpg', morphology=False)[:200]
 N = len(images)
 
 traj = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -25,9 +27,7 @@ display_img = np.zeros((1080, 1920, 3))
 for i, img in enumerate(images):
 	vo.update(img, i)
 	vo_eval.update()
-
-	orig_img = orig_images[i]
-	camera_traj = np.zeros((480, 640, 3), dtype=np.uint8)
+	vo_visualizer.show(img, orig_images[i])
 
 	x, y, z = vo.cur_t[0][0], vo.cur_t[1][0], vo.cur_t[2][0]
 	true_x, true_y, true_z = vo.true_x, vo.true_y, vo.true_z
@@ -38,22 +38,6 @@ for i, img in enumerate(images):
 		a, b, c = cur_lines[0][0], cur_lines[0][1], cur_lines[0][2]
 		distances = utils.compute_perpendicular_distance(vo.cur_points, a, b, z)
 		#frame_perp_distances[i] = compute_mean_distance(distances)
-
-	# Key point visualization
-	if i > 0:
-		for j, (new, old) in enumerate(zip(vo.cur_points, vo.prev_points)):
-			a, b = new.ravel()
-			c, d = old.ravel()
-			orig_img = cv2.circle(orig_img, (int(a), int(b)), 2, color=(255, 255, 0), thickness=2, lineType=cv2.LINE_AA)
-
-	cv2.namedWindow('Snake Robot Camera', cv2.WINDOW_NORMAL)
-	cv2.resizeWindow('Snake Robot Camera', W, H//2)
-
-	hstack = np.hstack((orig_img, img))
-	cv2.imshow('Snake Robot Camera', hstack)
-
-	utils.visualize_2d_traj(vo, traj, camera_traj)
-	cv2.waitKey(1)
 
 
 cv2.imwrite('plots/map.png', traj)
