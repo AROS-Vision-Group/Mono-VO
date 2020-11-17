@@ -8,4 +8,4 @@ Red trajectory is estimated, and green is ground truth.
 ![Processing](https://github.com/AROS-Vision-Group/visual-odometry-pipeline/blob/main/gifs/morphology_processed_frames.gif?raw=true)
 
 ### 3D Trajectory
-![3D Trajectory](https://github.com/AROS-Vision-Group/visual-odometry-pipeline/blob/main/plots/3d_traj.png) 
+![3D Trajectory](https://github.com/AROS-Vision-Group/visual-odometry-pipeline/blob/main/results/FAST-NONE-OpticalFlow/plots/3d_traj.png) 
