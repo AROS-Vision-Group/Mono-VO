@@ -13,23 +13,24 @@ from utils import preprocess_images, plot_3d_traj, plot_inlier_ratio, plot_orien
 
 def run(configuration: dict):
 	# Read from config.yaml
-
 	config = Config(configuration)
-	defaults = config.defaults
-	H, W = defaults["H"], defaults["W"]
-	pin_hole_params = defaults["PIN_HOLE_PARAMS"]
+	H, W = config.H, config.W
+	pin_hole_params = config.pin_hole_params
+	images = config.images
+	annotations = config.annotations
 
 	# Initilalize
 	cam = PinholeCamera(width=float(W), height=float(H), **pin_hole_params)
-	vo = VisualOdometry(cam, annotations='./data/transformed_ground_truth_vol2.txt', config=config)
+	vo = VisualOdometry(cam, annotations=annotations, config=config)
 	vo_eval = Eval(vo, name=config.name)
 	vo_visualizer = VO_Visualizer(vo, W, H)
 
-	orig_images = preprocess_images('data/images_v1/*.jpg', default=True)[:200]
-	images = preprocess_images('data/images_v1/*.jpg', morphology=True)[:200]
+	# Fetch and initialize preprocessing of images
+	orig_images = preprocess_images(images, default=True)[:200]
+	preprocessed_images = preprocess_images(images, config.toggle_morphology)[:200]
 
 	# Run
-	for i, img in enumerate(images):
+	for i, img in enumerate(preprocessed_images):
 		vo.update(img, i)
 		vo_eval.update()
 		vo_visualizer.show(img, orig_images[i])
@@ -38,5 +39,5 @@ def run(configuration: dict):
 
 
 if __name__ == '__main__':
-	config = yaml.load(open("config.yaml"), Loader=yaml.Loader)
-	run(config)
+	cfg = yaml.load(open("config.yaml"), Loader=yaml.Loader)
+	run(cfg)
