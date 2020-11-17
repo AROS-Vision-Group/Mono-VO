@@ -11,18 +11,25 @@ class DefaultConfig:
 class Config(DefaultConfig):
     def __init__(self, configuration):
         super().__init__(configuration)
+        self.detector = None
+        self.extractor = None
         self.defaults = configuration["Defaults"]
         self.experiment_index = str(argv[1]).upper()
         self.experiment = configuration[self.experiment_index]
 
-        self.correspondence_method = self.experiment["correspondence_method"]
-        self.detector_params = self.experiment["detector_params"]
-        self.extractor_params = self.experiment["extractor_params"]
-        self.k_min_features = self.experiment["k_min_features"]
-        self.flann_params = self.experiment["flann_params"]
-        self.parse_lk_params(self.experiment["lk_params"])
-        self.parse_detector(self.experiment["detector"])
-        self.parse_extractor(self.experiment["extractor"])
+        try:
+            self.name = self.experiment['name']
+            self.correspondence_method = self.experiment["correspondence_method"]
+            self.detector_params = self.experiment["detector_params"]
+            self.extractor_params = self.experiment["extractor_params"]
+            self.k_min_features = self.experiment["k_min_features"]
+            self.flann_params = self.experiment["flann_params"]
+            self.parse_lk_params(self.experiment["lk_params"])
+            self.parse_detector(self.experiment["detector"])
+            self.parse_extractor(self.experiment["extractor"])
+        except AttributeError:
+            pass
+
 
     def parse_lk_params(self, lk_parmas_dict):
         try:

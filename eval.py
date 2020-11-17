@@ -14,7 +14,7 @@ class Eval:
 		self.vo_poses = []
 		self.gt_poses = []
 		self.inlier_ratios = []
-		self.run_times = []
+		self.runtimes = []
 
 	def get_relative_poses(self, abs_poses):
 		""" Calculates the relative poses from the absolute ones
@@ -153,7 +153,7 @@ class Eval:
 
 	def update(self):
 		self.add_pose()
-		self.run_times.append(self.vo.cur_run_time)
+		self.runtimes.append(self.vo.cur_runtime)
 
 		if self.vo.frame_id > 0:
 			self.inlier_ratios.append(self.vo.inlier_ratio)
@@ -230,9 +230,9 @@ class Eval:
 		result['inlier_ratio'] = inlier_ratios
 
 		# ---- Processing Time ----
-		run_time = np.mean(self.run_times)
-		print(f'Runtime: {run_time:.3f}s')
-		result['run_time'] = run_time
+		runtime = np.mean(self.runtimes)
+		print(f'Runtime: {runtime:.3f}s')
+		result['runtime'] = runtime
 
 		# -------------------------
 		# Extract positions for 3d plot
