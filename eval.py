@@ -92,7 +92,7 @@ class Eval:
 			pitch_list.append(pitch)
 			roll_list.append(roll)
 
-		return yaw_list, pitch_list, roll_list
+		return np.array(yaw_list), np.array(pitch_list), np.array(roll_list)
 
 	def compute_ATE(self, gt_poses, vo_poses):
 		""" Compute RMSE of ATE (Absolute Trajectory Error)
@@ -149,7 +149,7 @@ class Eval:
 			ys.append(pose[1, 3])
 			zs.append(pose[2, 3])
 
-		return xs, ys, zs
+		return np.array(xs), np.array(ys), np.array(zs)
 
 	def update(self):
 		self.add_pose()
@@ -158,15 +158,13 @@ class Eval:
 		if self.vo.frame_id > 0:
 			self.inlier_ratios.append(self.vo.inlier_ratio)
 
-	def evaluate(self):
-		name = self.name
+	def evaluate(self, traj=None):
 		result = {}
+		result['name'] = self.name
 
 		# Create result directory
-		res_dir = f'./results/{name}'
-		error_dir = f'{res_dir}/metrics.txt'
+		res_dir = f'./results/{self.name}'
 		plot_path = f'{res_dir}/plots/'
-		# f = open(error_dir, 'w')
 
 		utils.create_dir(res_dir)
 		utils.create_dir(plot_path)
@@ -180,13 +178,6 @@ class Eval:
 		# ---- Absolute Errors ----
 		rot_errors, trans_errors = self.compute_errors(gt_poses, vo_poses)
 
-		utils.plot_rotation_erros(rot_errors,
-								  title='Absolute Rotation Error',
-								  save_path=f'{plot_path}/rotation_error.png')
-		utils.plot_translation_error(trans_errors,
-									 title="Absolute Translation Error",
-									 save_path=f'{plot_path}/translation_error.png')
-
 		# Absolute Trajectory Error (ATE)
 		ate = np.sqrt(np.mean(np.array(trans_errors) ** 2))  # Root Mean Squared Error
 		print(f'Absolute Trajectory Error (ATE) [m]: {ate:.6f}')
@@ -199,13 +190,6 @@ class Eval:
 
 		# ---- Relative Errors ----
 		rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
-
-		utils.plot_rotation_erros(rel_rot_errors,
-								  title='Relative Rotation Error',
-								  save_path=f'{plot_path}/rel_rotation_error.png')
-		utils.plot_translation_error(rel_trans_errors,
-									 title="Relative Translation Error",
-									 save_path=f'{plot_path}/rel_translation_error.png')
 
 		# Relative Trajectory Error (RTE)
 		rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
@@ -224,7 +208,9 @@ class Eval:
 		rel_yaw, rel_pitch, rel_roll = self.compute_orientations(rel_vo_poses)
 		true_rel_yaw, true_rel_pitch, true_rel_roll = self.compute_orientations(rel_gt_poses)
 
-		# ---- RANSAC Inlier Ratio ----
+		yaw_errors, pitch_errors, roll_errors = yaw - true_yaw, pitch - true_pitch, roll - true_roll
+
+
 		inlier_ratios = self.inlier_ratios
 		print(f'RANSAC inlier ratio: {np.mean(inlier_ratios):.3f}')
 		result['inlier_ratio'] = inlier_ratios
@@ -235,12 +221,32 @@ class Eval:
 		result['runtime'] = runtime
 
 		# -------------------------
-		# Extract positions for 3d plot
 		xs, ys, zs = self.get_positions(vo_poses)
 		true_xs, true_ys, true_zs = self.get_positions(gt_poses)
+		x_errors, y_errors, z_errors = xs - true_xs, ys - true_ys, zs - true_zs
 
-		utils.plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs)
-		utils.plot_inlier_ratio(self.inlier_ratios)
+		# ---- PLOTS ----
+		utils.plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs,
+						   save_path=f'{plot_path}/3d_traj.png')
+
+		utils.plot_translation_error(trans_errors,
+									 title="Absolute Translation Error",
+									 save_path=f'{plot_path}/translation_error.png')
+		utils.plot_rotation_erros(rot_errors,
+								  title='Absolute Rotation Error',
+								  save_path=f'{plot_path}/rotation_error.png')
+
+		utils.plot_rotation_erros(rel_rot_errors,
+								  title='Relative Rotation Error',
+								  save_path=f'{plot_path}/rel_rotation_error.png')
+		utils.plot_translation_error(rel_trans_errors,
+									 title="Relative Translation Error",
+									 save_path=f'{plot_path}/rel_translation_error.png')
+		utils.plot_inlier_ratio(self.inlier_ratios,
+								save_path=f'{plot_path}/inlier_ratio.png')
+
+		utils.plot_position_error(x_errors, y_errors, z_errors, save_path=f'{plot_path}/position_errors.png')
+		utils.plot_orientation_error(yaw_errors, pitch_errors, roll_errors, save_path=f"{plot_path}/orientation_errors.png")
 
 		utils.plot_orientation_angle(true_yaw, yaw, 'yaw',
 									 title='Yaw across frames',
@@ -261,7 +267,7 @@ class Eval:
 		utils.plot_orientation_angle(true_rel_roll, rel_roll, 'rel_roll',
 									 title='Relative roll across frames',
 									 save_path=f'{plot_path}/rel_roll.png')
+		if traj is not None:
+			cv2.imwrite(f'{plot_path}/2d_live_traj.png', traj)
 
-	# TODO: Find where to put the line below
-	# cv2.imwrite('plots/map.png', vo_visualizer.traj)
-	# TODO: Make plot for relative yaw, pitch, roll error
+		# TODO: Logging, 'results'-dict contains the metrics for logging
