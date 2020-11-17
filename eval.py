@@ -6,8 +6,8 @@ import sys
 
 
 class Eval:
-
 	""" Class for evaluating feature detectors, descriptors, tracking and matching methods used in a VO pipeline """
+
 	def __init__(self, vo, name=""):
 		self.vo = vo
 		self.name = name
@@ -24,8 +24,8 @@ class Eval:
 		"""
 
 		rel_poses = []
-		for i in range(len(abs_poses)-1):
-			pose1, pose2 = abs_poses[i], abs_poses[i+1]
+		for i in range(len(abs_poses) - 1):
+			pose1, pose2 = abs_poses[i], abs_poses[i + 1]
 			rel_poses.append(np.dot(
 				np.linalg.inv(pose1),
 				pose2)
@@ -94,7 +94,6 @@ class Eval:
 
 		return yaw_list, pitch_list, roll_list
 
-
 	def compute_ATE(self, gt_poses, vo_poses):
 		""" Compute RMSE of ATE (Absolute Trajectory Error)
 
@@ -113,7 +112,6 @@ class Eval:
 
 		ate = np.sqrt(np.mean(np.array(errors)))
 		return ate
-
 
 	def compute_AOE(self, gt_poses, vo_poses):
 		""" Compute Absolute Orientation Error
@@ -160,16 +158,18 @@ class Eval:
 		if self.vo.frame_id > 0:
 			self.inlier_ratios.append(self.vo.inlier_ratio)
 
-
 	def evaluate(self):
 		name = self.name
 		result = {}
 
 		# Create result directory
-		#error_dir = f'./results/{name}_metrics.txt'
-		plot_path_dir = f'./results/plots/{name}/'
+		res_dir = f'./results/{name}'
+		error_dir = f'{res_dir}/metrics.txt'
+		plot_path = f'{res_dir}/plots/'
+		# f = open(error_dir, 'w')
 
-		#f = open(error_dir, 'w')
+		utils.create_dir(res_dir)
+		utils.create_dir(plot_path)
 
 		# Absolute poses
 		gt_poses, vo_poses = self.gt_poses, self.vo_poses
@@ -182,10 +182,10 @@ class Eval:
 
 		utils.plot_rotation_erros(rot_errors,
 								  title='Absolute Rotation Error',
-								  save_path='./plots/rotation_error')
+								  save_path=f'{plot_path}/rotation_error.png')
 		utils.plot_translation_error(trans_errors,
 									 title="Absolute Translation Error",
-									 save_path='./plots/translation_error.png')
+									 save_path=f'{plot_path}/translation_error.png')
 
 		# Absolute Trajectory Error (ATE)
 		ate = np.sqrt(np.mean(np.array(trans_errors) ** 2))  # Root Mean Squared Error
@@ -194,7 +194,7 @@ class Eval:
 
 		# Absolute Orientation Error (AOE)
 		aoe = np.mean(rot_errors)
-		print(f'Absolute Orientation Error (AOE) [deg]: {aoe*180 / np.pi:.6f}')
+		print(f'Absolute Orientation Error (AOE) [deg]: {aoe * 180 / np.pi:.6f}')
 		result['aoe'] = aoe
 
 		# ---- Relative Errors ----
@@ -202,10 +202,10 @@ class Eval:
 
 		utils.plot_rotation_erros(rel_rot_errors,
 								  title='Relative Rotation Error',
-								  save_path='./plots/rel_rotation_error')
+								  save_path=f'{plot_path}/rel_rotation_error.png')
 		utils.plot_translation_error(rel_trans_errors,
 									 title="Relative Translation Error",
-									 save_path='./plots/rel_translation_error.png')
+									 save_path=f'{plot_path}/rel_translation_error.png')
 
 		# Relative Trajectory Error (RTE)
 		rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
@@ -214,7 +214,7 @@ class Eval:
 
 		# Relative Rotation Error (RRE)
 		rre = np.sqrt(np.mean(np.array(rel_rot_errors) ** 2))
-		print(f'Relative Rotation Error (RRE) [deg]: {rre*180 / np.pi:.6f}')
+		print(f'Relative Rotation Error (RRE) [deg]: {rre * 180 / np.pi:.6f}')
 		result['rre'] = rre
 
 		# ---- Yaw, Pitch, Roll ----
@@ -244,31 +244,24 @@ class Eval:
 
 		utils.plot_orientation_angle(true_yaw, yaw, 'yaw',
 									 title='Yaw across frames',
-									 save_path='./plots/yaw.png')
-
+									 save_path=f'{plot_path}/yaw.png')
 		utils.plot_orientation_angle(true_pitch, pitch, 'pitch',
 									 title='Pitch across frames',
-									 save_path='./plots/pitch.png')
+									 save_path=f'{plot_path}/pitch.png')
 		utils.plot_orientation_angle(true_roll, roll, 'roll',
 									 title='Roll across frames',
-									 save_path='./plots/roll.png')
+									 save_path=f'{plot_path}/roll.png')
 
 		utils.plot_orientation_angle(true_rel_yaw, rel_yaw, 'rel_yaw',
 									 title='Relative yaw across frames',
-									 save_path='./plots/rel_yaw.png')
+									 save_path=f'{plot_path}/rel_yaw.png')
 		utils.plot_orientation_angle(true_rel_pitch, rel_pitch, 'rel_pitch',
 									 title='Relative pitch across frames',
-									 save_path='./plots/rel_pitch.png')
+									 save_path=f'{plot_path}/rel_pitch.png')
 		utils.plot_orientation_angle(true_rel_roll, rel_roll, 'rel_roll',
 									 title='Relative roll across frames',
-									 save_path='./plots/rel_roll.png')
+									 save_path=f'{plot_path}/rel_roll.png')
 
-		# TODO: Find where to put the line below
-		# cv2.imwrite('plots/map.png', vo_visualizer.traj)
-		# TODO: Make plot for relative yaw, pitch, roll error 
-
-
-
-
-
-
+	# TODO: Find where to put the line below
+	# cv2.imwrite('plots/map.png', vo_visualizer.traj)
+	# TODO: Make plot for relative yaw, pitch, roll error

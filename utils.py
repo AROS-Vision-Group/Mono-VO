@@ -4,6 +4,7 @@ import glob
 import matplotlib.pyplot as plt
 import math
 from scipy.spatial.kdtree import KDTree
+import os
 
 
 def get_img_id(i):
@@ -11,6 +12,11 @@ def get_img_id(i):
 	id = "0" * (4 - num_digits)
 	id += str(i)
 	return id
+
+
+def create_dir(dir_path):
+	if not os.path.exists(dir_path):
+		os.makedirs(dir_path)
 
 
 def plot_inlier_ratio(ratios, save=True):

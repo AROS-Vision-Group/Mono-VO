@@ -14,7 +14,7 @@ H = 1080
 
 cam = PinholeCamera(width=float(W), height=float(H), fx=1263.1578, fy=1125, cx=960, cy=540)
 vo = VisualOdometry(cam, annotations='./data/transformed_ground_truth_vol2.txt')
-vo_eval = Eval(vo)
+vo_eval = Eval(vo, name='FAST-OpticalFlow')
 vo_visualizer = VO_Visualizer(vo, W, H)
 
 orig_images = preprocess_images('data/images_v1/*.jpg', default=True)
