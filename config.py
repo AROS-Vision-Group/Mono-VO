@@ -64,15 +64,21 @@ class Config(DefaultConfig):
             raise ModuleNotFoundError(f"No detector <{self.detector}> found.")
 
     def parse_extractor(self, extractor_string):
+        as_extractor = False
+        if self.experiment["detector"] != extractor_string:
+            as_extractor = True
+
+        params = {} if self.extractor_params is None else self.extractor_params
+
         if extractor_string.upper() == "SIFT":
-            self.extractor = detector.SIFT(**self.extractor_params)
+            self.extractor = detector.SIFT(as_extractor=as_extractor, **params)
         elif extractor_string.upper() == "SURF":
-            self.extractor = detector.SURF(**self.extractor_params)
+            self.extractor = detector.SURF(as_extractor=as_extractor, **params)
         elif extractor_string.upper() == "ORB":
-            self.extractor = detector.ORB(**self.extractor_params)
+            self.extractor = detector.ORB(as_extractor=as_extractor, **params)
         elif extractor_string.upper() == "AKAZE":
-            self.extractor = detector.AKAZE(**self.extractor_params)
+            self.extractor = detector.AKAZE(as_extractor=as_extractor, **params)
         elif extractor_string.upper() == "BRIEF":
-            self.extractor = detector.BRIEF_Extractor(**self.extractor_params)
+            self.extractor = detector.BRIEF_Extractor(**params)
         else:
             raise ModuleNotFoundError(f"No descriptor extractor <{self.detector}> found.")

@@ -25,10 +25,13 @@ BRIEF_PARAMS: &brief
   use_orientation: !!python/bool True
 
 SIFT_PARAMS: &sift
+  nfeatures: !!python/int 5000
   nOctaveLayers: !!python/int 3
   contrastThreshold: !!python/float 0.04
   edgeThreshold: !!python/int 10
   sigma: !!python/float 1.6
+
+
 
 
 LK_PARAMS: &lk
@@ -69,6 +72,17 @@ EXPERIMENT_1:
 
 
 EXPERIMENT_2:
+  name: !!python/str 'SIFT-NONE-OpticalFlow'
+  correspondence_method: !!python/str 'tracking'
+  detector: !!python/str 'SIFT'
+  detector_params: *sift
+  extractor: !!python/none None
+  extractor_params: !!python/none None
+  lk_params: *lk
+  flann_params: !!python/none None
+  k_min_features: !!python/int 1200
+
+EXPERIMENT_3:
   name: !!python/str 'ORB-BRIEF-FLANN'
   correspondence_method: !!python/str 'matching'
   detector: !!python/str 'ORB'
@@ -79,14 +93,24 @@ EXPERIMENT_2:
   flann_params: *flann-not-sift
   k_min_features: !!python/none None
 
-EXPERIMENT_3:
+EXPERIMENT_4:
   name: !!python/str 'ORB-SIFT-FLANN'
   correspondence_method: !!python/str 'matching'
   detector: !!python/str 'ORB'
   detector_params: *orb
   extractor: !!python/str 'SIFT'
-  extractor_params: *sift
+  extractor_params: !!python/none None
   lk_params: !!python/none None
   flann_params: *flann-sift
   k_min_features: !!python/none None
 
+EXPERIMENT_5:
+  name: !!python/str 'SIFT-SIFT-FLANN'
+  correspondence_method: !!python/str 'matching'
+  detector: !!python/str 'SIFT'
+  detector_params: *sift
+  extractor: !!python/str 'SIFT'
+  extractor_params: !!python/none None
+  lk_params: !!python/none None
+  flann_params: *flann-sift
+  k_min_features: !!python/none None
