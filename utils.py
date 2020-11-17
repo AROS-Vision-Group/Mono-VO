@@ -4,6 +4,7 @@ import glob
 import matplotlib.pyplot as plt
 import math
 from scipy.spatial.kdtree import KDTree
+import os
 
 
 def get_img_id(i):
@@ -11,6 +12,11 @@ def get_img_id(i):
 	id = "0" * (4 - num_digits)
 	id += str(i)
 	return id
+
+
+def create_dir(dir_path):
+	if not os.path.exists(dir_path):
+		os.makedirs(dir_path)
 
 
 def plot_inlier_ratio(ratios, save=True):
@@ -23,35 +29,38 @@ def plot_inlier_ratio(ratios, save=True):
 	plt.show()
 
 
-def plot_drift(drift, save=True):
+def plot_translation_error(drift, title="", save_path="", save=True, show=True):
 	plt.plot([i for i in range(len(drift))], drift, color='blue')
-	plt.title('Drift (L2 distance) between estimated and GT')
+	plt.title(title)
 	plt.xlabel('frame #')
-	plt.ylabel('Drift')
+	plt.ylabel('Translation Error (m)')
 	if save:
-		plt.savefig('plots/drift.png', bbox_inches='tight')
-	plt.show()
+		plt.savefig(f'{save_path}', bbox_inches='tight')
+	if show:
+		plt.show()
 
 
-def plot_orientation_angle(theta_true, theta_hat, angle_name, save=True):
-	plt.plot([i for i in range(len(theta_true))], theta_true, label=f'{angle_name}_true')
-	plt.plot([i for i in range(len(theta_hat))], theta_hat, label=f'{angle_name}_estimated')
-	plt.title(f'{angle_name} value across frame')
+def plot_rotation_erros(rot_errors, title="", save_path="", save=True, show=True):
+	plt.plot([i for i in range(len(rot_errors))], rot_errors, color='blue')
+	plt.title(title)
+	plt.xlabel('frame #')
+	plt.ylabel('Rotation Error (deg)')
+	if save:
+		plt.savefig(f'{save_path}', bbox_inches='tight')
+	if show:
+		plt.show()
+
+
+def plot_orientation_angle(theta_true, theta_hat, angle_name, title="", save_path="", save=True, show=True):
+	plt.plot([i for i in range(len(theta_true))], theta_true, label=f'{angle_name}_true', color='green')
+	plt.plot([i for i in range(len(theta_hat))], theta_hat, label=f'{angle_name}_estimated', color='red')
+	plt.title(title)
 	plt.xlabel('frame #')
 	plt.legend()
 	if save:
-		plt.savefig(f'plots/orientation_{angle_name}.png', bbox_inches='tight')
-	plt.show()
-
-
-def plot_rotation_erros(rot_errors, save=True):
-	plt.plot([i for i in range(len(rot_errors))], rot_errors, color='blue')
-	plt.title('Rotation error across frames')
-	plt.xlabel('frame #')
-	plt.ylabel('Angle (absolute value)')
-	if save:
-		plt.savefig('plots/rotation_error.png', bbox_inches='tight')
-	plt.show()
+		plt.savefig(save_path, bbox_inches='tight')
+	if show:
+		plt.show()
 
 
 def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs, save=True):
@@ -184,7 +193,6 @@ def is_rotation_matrix(R):
 	shouldBeIdentity = np.dot(Rt, R)
 	I = np.identity(3, dtype=R.dtype)
 	n = np.linalg.norm(I - shouldBeIdentity)
-	print(n)
 	return n < 1e-6
 
 
