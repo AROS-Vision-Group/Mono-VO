@@ -5,7 +5,12 @@ import cv2
 
 class DefaultConfig:
     def __init__(self, configuration):
-        defaults = configuration["Defaults"]
+        defaults = configuration["DEFAULTS"]
+        self.W = defaults["W"]
+        self.H = defaults["H"]
+        self.pin_hole_params = defaults["PIN_HOLE_PARAMS"]
+        self.images = defaults["IMAGES"]
+        self.annotations = defaults["ANNOTATIONS"]
 
 
 class Config(DefaultConfig):
@@ -13,7 +18,7 @@ class Config(DefaultConfig):
         super().__init__(configuration)
         self.detector = None
         self.extractor = None
-        self.defaults = configuration["Defaults"]
+        self.defaults = configuration["DEFAULTS"]
         self.experiment_index = str(argv[1]).upper()
         self.experiment = configuration[self.experiment_index]
 
@@ -24,6 +29,8 @@ class Config(DefaultConfig):
             self.extractor_params = self.experiment["extractor_params"]
             self.k_min_features = self.experiment["k_min_features"]
             self.flann_params = self.experiment["flann_params"]
+            self.k_min_features = self.experiment["k_min_features"]
+            self.toggle_morphology = self.experiment["toggle_morphology"]
             self.parse_lk_params(self.experiment["lk_params"])
             self.parse_detector(self.experiment["detector"])
             self.parse_extractor(self.experiment["extractor"])
