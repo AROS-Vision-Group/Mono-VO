@@ -19,14 +19,15 @@ def create_dir(dir_path):
 		os.makedirs(dir_path)
 
 
-def plot_inlier_ratio(ratios, save=True):
+def plot_inlier_ratio(ratios, save=True, save_path="", show=True):
 	plt.plot([i for i in range(len(ratios))], ratios, color='blue')
 	plt.title('RANSAC inlier ratio across frames')
 	plt.xlabel('frame #')
 	plt.ylabel('Inlier Ratio')
 	if save:
-		plt.savefig('plots/inlier_ratio.png', bbox_inches='tight')
-	plt.show()
+		plt.savefig(save_path, bbox_inches='tight')
+	if show:
+		plt.show()
 
 
 def plot_translation_error(drift, title="", save_path="", save=True, show=True):
@@ -51,6 +52,34 @@ def plot_rotation_erros(rot_errors, title="", save_path="", save=True, show=True
 		plt.show()
 
 
+def plot_position_error(x_errors, y_errors, z_errors, save_path="", save=True, show=True):
+	plt.plot([i for i in range(len(x_errors))], x_errors, label='x', color='red')
+	plt.plot([i for i in range(len(y_errors))], y_errors, label='y', color='green')
+	plt.plot([i for i in range(len(z_errors))], z_errors, label='z', color='blue')
+	plt.title('Position Error across frames')
+	plt.xlabel('frame #')
+	plt.ylabel('Position Error [m]')
+	plt.legend()
+	if save:
+		plt.savefig(f'{save_path}', bbox_inches='tight')
+	if show:
+		plt.show()
+
+
+def plot_orientation_error(yaw_errors, pitch_errors, roll_errors, save_path="", save=True, show=True):
+	plt.plot([i for i in range(len(yaw_errors))], yaw_errors, label='yaw', color='red')
+	plt.plot([i for i in range(len(pitch_errors))], pitch_errors, label='pitch', color='green')
+	plt.plot([i for i in range(len(roll_errors))], roll_errors, label='roll', color='blue')
+	plt.title('Orientation Error across frames')
+	plt.xlabel('frame #')
+	plt.ylabel('Orientation Error [deg]')
+	plt.legend()
+	if save:
+		plt.savefig(f'{save_path}', bbox_inches='tight')
+	if show:
+		plt.show()
+
+
 def plot_orientation_angle(theta_true, theta_hat, angle_name, title="", save_path="", save=True, show=True):
 	plt.plot([i for i in range(len(theta_true))], theta_true, label=f'{angle_name}_true', color='green')
 	plt.plot([i for i in range(len(theta_hat))], theta_hat, label=f'{angle_name}_estimated', color='red')
@@ -63,19 +92,35 @@ def plot_orientation_angle(theta_true, theta_hat, angle_name, title="", save_pat
 		plt.show()
 
 
-def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs, save=True):
+def plot_2d_traj(traj, save=True, save_path="", show=True):
+	#fig = plt.figure()
+	plt.imshow(traj)
+	#plt.plot(xs, zs, label='Estimated', color='red')
+	#plt.plot(true_xs, true_zs, label='Ground Truth', color='green')
+	plt.title('2D trajectory (from above)')
+	plt.xlabel('x [m]')
+	plt.ylabel('z [m]')
+	plt.legend()
+	if save:
+		plt.savefig(save_path, bbox_inches='tight')
+	if show:
+		plt.show()
+
+
+def plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs, save=True, save_path="", show=True):
 	fig = plt.figure()
 	ax = fig.gca(projection='3d')
-	ax.plot(xs, ys, zs, label='Estimated Trajectory', color='red')
+	ax.plot(xs, ys, zs, label='Estimated', color='red')
 	ax.plot(true_xs, true_ys, true_zs, label='Ground Truth', color='green')
 	ax.set_title('3D trajectory')
-	ax.set_xlabel('X')
-	ax.set_ylabel('Y')
-	ax.set_zlabel('Z')
+	ax.set_xlabel('x [m]')
+	ax.set_ylabel('y [m]')
+	ax.set_zlabel('z [m]')
 	ax.legend()
 	if save:
-		plt.savefig('plots/3d_traj.png', bbox_inches='tight')
-	plt.show()
+		plt.savefig(save_path, bbox_inches='tight')
+	if show:
+		plt.show()
 
 
 def compute_perpendicular_distance(points, a, b, c):
@@ -104,6 +149,7 @@ def draw_lines(frame, lines, pts1, pts2):
 
 	return frame
 
+
 def adjust_gamma(image, gamma=1.0):
     # source: https://www.pyimagesearch.com/2015/10/05/opencv-gamma-correction/
     img = image.copy()
@@ -111,6 +157,7 @@ def adjust_gamma(image, gamma=1.0):
     look_up_table = np.array([((i / 255.0) ** inverted_gamma) * 255
                       for i in np.arange(0, 256)]).astype("uint8")
     return cv2.LUT(img , look_up_table)
+
 
 def preprocess_images(filepath, default=False, morphology=False):
 	out = []

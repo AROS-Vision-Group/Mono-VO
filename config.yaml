@@ -76,7 +76,7 @@ EXPERIMENT_2:
   extractor_params: !!python/none None
   lk_params: *lk
   flann_params: !!python/none None
-  k_min_features: !!python/int 1200
+  k_min_features: !!python/int 1600
   toggle_morphology: !!python/bool False
 
 EXPERIMENT_3:
@@ -107,10 +107,22 @@ EXPERIMENT_5:
   name: !!python/str 'SIFT-SIFT-FLANN'
   correspondence_method: !!python/str 'matching'
   detector: !!python/str 'SIFT'
-  detector_params: *sift
+  detector_params: !!python/none None
   extractor: !!python/str 'SIFT'
   extractor_params: !!python/none None
   lk_params: !!python/none None
   flann_params: *flann-sift
+  k_min_features: !!python/none None
+  toggle_morphology: !!python/bool False
+
+EXPERIMENT_6:
+  name: !!python/str 'SIFT-BRIEF-FLANN'
+  correspondence_method: !!python/str 'matching'
+  detector: !!python/str 'SIFT'
+  detector_params: !!python/none None
+  extractor: !!python/str 'BRIEF'
+  extractor_params: !!python/none None
+  lk_params: !!python/none None
+  flann_params: *flann-not-sift
   k_min_features: !!python/none None
   toggle_morphology: !!python/bool False

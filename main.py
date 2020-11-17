@@ -16,7 +16,7 @@ def run(configuration: dict):
 	config = Config(configuration)
 	H, W = config.H, config.W
 	pin_hole_params = config.pin_hole_params
-	images = config.images
+	image_path = config.images
 	annotations = config.annotations
 
 	# Initilalize
@@ -26,8 +26,8 @@ def run(configuration: dict):
 	vo_visualizer = VO_Visualizer(vo, W, H)
 
 	# Fetch and initialize preprocessing of images
-	orig_images = preprocess_images(images, default=True)[:200]
-	preprocessed_images = preprocess_images(images, config.toggle_morphology)[:200]
+	orig_images = preprocess_images(image_path, default=True)[:200]
+	preprocessed_images = preprocess_images(image_path, morphology=config.toggle_morphology)[:200]
 
 	# Run
 	for i, img in enumerate(preprocessed_images):
@@ -35,7 +35,7 @@ def run(configuration: dict):
 		vo_eval.update()
 		vo_visualizer.show(img, orig_images[i])
 
-	vo_eval.evaluate()
+	vo_eval.evaluate(traj=vo_visualizer.traj)
 
 
 if __name__ == '__main__':

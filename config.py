@@ -53,20 +53,22 @@ class Config(DefaultConfig):
             pass
 
     def parse_detector(self, detector_string):
+        params = {} if self.detector_params is None else self.detector_params
+
         if detector_string.upper() == "FAST":
-            self.detector = detector.FAST_Detector(**self.detector_params)
+            self.detector = detector.FAST_Detector(**params)
         elif detector_string.upper() == "HARRIS":
             self.detector = detector.HarrisDetector()
         elif detector_string.upper() == "CENSURE":
-            self.detector = detector.CenSurE_Detector(**self.detector_params)
+            self.detector = detector.CenSurE_Detector(**params)
         elif detector_string.upper() == "SIFT":
-            self.detector = detector.SIFT(**self.detector_params)
+            self.detector = detector.SIFT(**params)
         elif detector_string.upper() == "SURF":
-            self.detector = detector.SURF(**self.detector_params)
+            self.detector = detector.SURF(**params)
         elif detector_string.upper() == "ORB":
-            self.detector = detector.ORB(**self.detector_params)
+            self.detector = detector.ORB(**params)
         elif detector_string.upper() == "AKAZE":
-            self.detector = detector.AKAZE(**self.detector_params)
+            self.detector = detector.AKAZE(**params)
         else:
             raise ModuleNotFoundError(f"No detector <{self.detector}> found.")
 
