@@ -1,8 +1,10 @@
-import numpy as np
 import cv2
 import detector
+import numpy as np
+from config import Config
+from pinhole_camera import PinholeCamera
+from detector import DetectorDescriptorInterface
 from point_correspondence import OpticalFlowTracker, FLANN_Matcher
-
 
 STAGE_FIRST_FRAME = 0
 STAGE_SECOND_FRAME = 1
@@ -25,8 +27,10 @@ BRIEF_PARAMS = dict(
 
 # --- KLT Tracker Params---
 LK_PARAMS = dict(winSize=(21, 21),
-                maxLevel=6,
-                criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
+                 maxLevel=6,
+                 criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01),
+                 flags=cv2.OPTFLOW_LK_GET_MIN_EIGENVALS,
+                 minEigThreshold=1e-4)
 
 # --- FLANN matcher Params---
 FLANN_PARAMS = {
@@ -37,6 +41,7 @@ FLANN_PARAMS = {
     'search_params': dict(checks=50)
 }
 
+
 # (For SIFT to work)
 # FLANN_PARAMS = {
 #     'index_params': dict(algorithm=0,
@@ -46,7 +51,11 @@ FLANN_PARAMS = {
 
 
 class VisualOdometry:
-    def __init__(self, cam, annotations):
+    def __init__(self,
+                 cam: PinholeCamera,
+                 annotations: list,
+                 config: Config):
+
         self.frame_stage = 0
         self.frame_id = 0
         self.cam = cam
@@ -73,22 +82,14 @@ class VisualOdometry:
         self.focal = cam.fx
         self.pp = (cam.cx, cam.cy)
 
-        brief_extractor = detector.BRIEF_Extractor(**BRIEF_PARAMS)
-        #orb_extractor = detector.ORB(as_extractor=True)
-        #sift_extractor = detector.SIFT(as_extractor=True)
+        self.detector = config.detector
+        self.detector.set_extractor(config.extractor)
 
-        #self.detector = detector.SIFT()
-        #self.detector = detector.ORB(des_extractor=brief_extractor, **ORB_PARAMS)
-        #self.detector = detector.CenSurE_Detector(des_extractor=brief_extractor)
-        #self.detector = detector.AKAZE()
-        self.detector = detector.FAST_Detector(brief_extractor, **FAST_PARAMS)
-        #self.detector = detector.FAST_Detector(**FAST_PARAMS)
-
-        self.correspondence_method = 'tracking'
+        self.correspondence_method = config.correspondence_method
         if self.correspondence_method == 'tracking':
-            self.point_corr_computer = OpticalFlowTracker(LK_PARAMS)
+            self.point_corr_computer = OpticalFlowTracker(config.lk_params)
         else:
-            self.point_corr_computer = FLANN_Matcher(FLANN_PARAMS)
+            self.point_corr_computer = FLANN_Matcher(config.flann_params)
 
         with open(annotations) as f:
             self.annotations = f.readlines()
@@ -104,14 +105,14 @@ class VisualOdometry:
         y = float(ss[yi])
         z = float(ss[zi])
         self.true_t = np.array([[x], [y], [z]])
-        #self.true_x, self.true_y, self.true_z = x, y, z
+        # self.true_x, self.true_y, self.true_z = x, y, z
 
         r11, r12, r13 = float(ss[0]), float(ss[1]), float(ss[2])
         r21, r22, r23 = float(ss[4]), float(ss[5]), float(ss[6])
         r31, r32, r33 = float(ss[8]), float(ss[9]), float(ss[10])
         self.true_R = np.array([r11, r12, r13, r21, r22, r23, r31, r32, r33]).reshape((3, 3))
 
-        return np.sqrt((x - x_prev)**2 + (y - y_prev)**2 + (z - z_prev)**2)
+        return np.sqrt((x - x_prev) ** 2 + (y - y_prev) ** 2 + (z - z_prev) ** 2)
 
     def get_relative_scale(self):
         """
@@ -132,9 +133,10 @@ class VisualOdometry:
 
     def process_frame(self, frame_id):
         if self.correspondence_method == 'tracking':
-            self.prev_points, self.cur_points = self.point_corr_computer.get_corresponding_points(img_ref=self.prev_frame,
-                                                                                                  img_cur=self.cur_frame,
-                                                                                                  px_ref=self.prev_points)
+            self.prev_points, self.cur_points = self.point_corr_computer.get_corresponding_points(
+                img_ref=self.prev_frame,
+                img_cur=self.cur_frame,
+                px_ref=self.prev_points)
         else:
             self.cur_points = self.detector.get_keypoints(self.cur_frame)
             self.cur_points, self.cur_desc = self.detector.get_descriptors(self.cur_frame, self.cur_points)
@@ -142,14 +144,16 @@ class VisualOdometry:
             temp_px = self.cur_points
             temp_des = self.cur_desc
 
-            self.prev_points, self.cur_points = self.point_corr_computer.get_corresponding_points(px_ref=self.all_px_ref,
-                                                                                                  px_cur=self.cur_points,
-                                                                                                  des_ref=self.all_prev_desc,
-                                                                                                  des_cur=self.cur_desc)
+            self.prev_points, self.cur_points = self.point_corr_computer.get_corresponding_points(
+                px_ref=self.all_px_ref,
+                px_cur=self.cur_points,
+                des_ref=self.all_prev_desc,
+                des_cur=self.cur_desc)
             self.all_px_ref = temp_px
             self.all_prev_desc = temp_des
 
-        E, mask = cv2.findEssentialMat(self.cur_points, self.prev_points, focal=self.focal, pp=self.pp, method=cv2.RANSAC,
+        E, mask = cv2.findEssentialMat(self.cur_points, self.prev_points, focal=self.focal, pp=self.pp,
+                                       method=cv2.RANSAC,
                                        prob=0.999, threshold=1.0)
 
         self.inlier_ratio = np.sum(mask) / (len(mask) + 1)
@@ -162,7 +166,8 @@ class VisualOdometry:
             self.cur_t = self.cur_t + absolute_scale * self.cur_R.dot(t)
             self.cur_R = R.dot(self.cur_R)
 
-        if self.correspondence_method == 'tracking' and self.prev_points.shape[0] < kMinNumFeature: #or frame_id % 50 == 0:
+        if self.correspondence_method == 'tracking' and self.prev_points.shape[
+            0] < kMinNumFeature:  # or frame_id % 50 == 0:
             self.cur_points = self.detector.get_keypoints(self.cur_frame)
             self.cur_points = np.array([x.pt for x in self.cur_points], dtype=np.float32)
 

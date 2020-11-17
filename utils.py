@@ -121,8 +121,6 @@ def preprocess_images(filepath, default=False, morphology=False):
 			# processed_img = cv2.morphologyEx(processed_img, cv2.MORPH_OPEN, kernel, iterations=1)
 		else:
 			processed_img = cv2.GaussianBlur(processed_img, (7, 7), 0)
-			#processed_img = adjust_gamma(processed_img, 1.5)
-			#cv2.equalizeHist(processed_img, processed_img)
 			processed_img = cv2.adaptiveThreshold(processed_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 7, 2)
 			processed_img = processed_img
 		out.append(processed_img)

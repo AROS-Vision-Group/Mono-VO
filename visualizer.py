@@ -59,8 +59,9 @@ class VO_Visualizer:
 		x_x, x_y = utils.rotate_around(x_x, x_y, draw_x, draw_y, -45)
 		z_x, z_y = utils.rotate_around(z_x, z_y, draw_x, draw_y, -45)
 
-		cv2.line(camera_traj, (draw_x, draw_y), (int(x_x), int(x_y)), (0, 255, 255), 1, cv2.LINE_AA)
-		cv2.line(camera_traj, (draw_x, draw_y), (int(z_x), int(z_y)), (255, 255, 0), 1, cv2.LINE_AA)
+		cv2.line(camera_traj, (draw_x, draw_y), (int(x_x), int(x_y)), (255, 255, 255), 1, cv2.LINE_AA)
+		cv2.line(camera_traj, (draw_x, draw_y), (int(z_x), int(z_y)), (255, 255, 255), 1, cv2.LINE_AA)
+		cv2.line(camera_traj, (int(x_x), int(x_y)), (int(z_x), int(z_y)), (255, 255, 255), 2, cv2.LINE_AA)
 
 		combined = cv2.add(self.traj, camera_traj)
 		cv2.imshow('Trajectory', combined)
