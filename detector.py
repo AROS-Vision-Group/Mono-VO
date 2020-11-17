@@ -6,11 +6,9 @@ import numpy as np
 class DetectorDescriptorInterface:
 
 	def __init__(self, des_extractor, as_extractor):
-		self.frame = None
 		self.detector = None
 		self.des_extractor = des_extractor
 		self.as_extractor = as_extractor
-		self.kp = None
 		self.des = None
 
 	def get_keypoints(self, frame):
@@ -32,6 +30,9 @@ class DetectorDescriptorInterface:
 		:return: descriptors of detected points, shape: (numberOfKeypoints, descriptorDimension)
 		"""
 		pass
+
+	def set_extractor(self, extractor):
+		self.des_extractor = extractor
 
 
 class HarrisDetector(DetectorDescriptorInterface):

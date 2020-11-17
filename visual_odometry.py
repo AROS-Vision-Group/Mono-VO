@@ -1,99 +1,64 @@
-import numpy as np
 import cv2
-import detector
-from point_correspondence import OpticalFlowTracker, FLANN_Matcher
 import time
+import detector
+import numpy as np
+from config import Config
+from pinhole_camera import PinholeCamera
+from detector import DetectorDescriptorInterface
+from point_correspondence import OpticalFlowTracker, FLANN_Matcher
+
 
 STAGE_FIRST_FRAME = 0
 STAGE_SECOND_FRAME = 1
 STAGE_DEFAULT_FRAME = 2
 kMinNumFeature = 1200
 
-# --- Detection/Descriptor Params----
-FAST_PARAMS = dict(
-	threshold=10,
-	nonmaxSuppression=True
-)
-
-ORB_PARAMS = dict(
-	nfeatures=5000
-)
-
-BRIEF_PARAMS = dict(
-	use_orientation=True
-)
-
-SHI_TOMASI_PARAMS = dict(
-	maxCorners=3000,
-	qualityLevel=0.3,
-	minDistance=10,
-	blockSize=7
-)
-
-# --- KLT Tracker Params---
-LK_PARAMS = dict(winSize=(21, 21),
-				maxLevel=6,
-				criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
-
-# --- FLANN matcher Params---
-FLANN_PARAMS = {
-	'index_params': dict(algorithm=6,
-						 table_number=6,  # 12
-						 key_size=12,  # 20
-						 multi_probe_level=1),
-	'search_params': dict(checks=50)
-}
-
-# (For SIFT to work)
-# FLANN_PARAMS = {
-#     'index_params': dict(algorithm=0,
-#                          trees=5),
-#     'search_params': dict(checks=50)
-# }
-
 
 class VisualOdometry:
-	def __init__(self, cam, annotations):
-		self.frame_stage = 0
-		self.frame_id = 0
-		self.cam = cam
-		self.cur_frame = None
-		self.prev_frame = None
+    def __init__(self,
+                 cam: PinholeCamera,
+                 annotations: list,
+                 config: Config):
 
-		self.prev_t = None
-		self.cur_t = np.zeros((3, 1))
-		self.cur_R = np.eye(3)
+        self.frame_stage = 0
+        self.frame_id = 0
+        self.cam = cam
+        self.cur_frame = None
+        self.prev_frame = None
 
-		self.true_t = np.zeros((3, 1))
-		self.true_R = np.eye(3)
+        self.prev_t = None
+        self.cur_t = np.zeros((3, 1))
+        self.cur_R = np.eye(3)
 
-		self.prev_points = None
-		self.cur_points = None
-		self.prev_desc = None
-		self.cur_desc = None
+        self.true_t = np.zeros((3, 1))
+        self.true_R = np.eye(3)
 
-		self.all_cur_desc = None
-		self.all_prev_desc = None
+        self.prev_points = None
+        self.cur_points = None
+        self.prev_desc = None
+        self.cur_desc = None
 
-		self.cur_lines = None
-		self.inlier_ratio = 0
-		self.focal = cam.fx
-		self.pp = (cam.cx, cam.cy)
+        self.all_cur_desc = None
+        self.all_prev_desc = None
 
-		self.cur_run_time = 0
+        self.cur_lines = None
+        self.inlier_ratio = 0
+        self.focal = cam.fx
+        self.pp = (cam.cx, cam.cy)
+        
+        self.cur_runtime = 0
 
-		brief_extractor = detector.BRIEF_Extractor(**BRIEF_PARAMS)
-		self.detector = detector.FAST_Detector(brief_extractor, **FAST_PARAMS)
+        self.detector = config.detector
+        self.detector.set_extractor(config.extractor)
 
-		self.correspondence_method = 'tracking'
-		if self.correspondence_method == 'tracking':
-			self.point_corr_computer = OpticalFlowTracker(LK_PARAMS)
-		else:
-			self.point_corr_computer = FLANN_Matcher(FLANN_PARAMS)
+        self.correspondence_method = config.correspondence_method
+        if self.correspondence_method == 'tracking':
+            self.point_corr_computer = OpticalFlowTracker(config.lk_params)
+        else:
+            self.point_corr_computer = FLANN_Matcher(config.flann_params)
 
-		with open(annotations) as f:
-			self.annotations = f.readlines()
-
+        with open(annotations) as f:
+            self.annotations = f.readlines()
 	def get_absolute_scale(self, frame_id):
 		xi, yi, zi = 3, 7, 11
 		ss = self.annotations[frame_id - 1].strip().split()
@@ -183,4 +148,4 @@ class VisualOdometry:
 			self.process_initial_frame()
 		self.prev_frame = self.cur_frame
 		self.frame_id = frame_id
-		self.cur_run_time = time.time() - start_time
+		self.cur_runtime = time.time() - start_time
