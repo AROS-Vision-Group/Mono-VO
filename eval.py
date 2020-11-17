@@ -8,8 +8,9 @@ import sys
 class Eval:
 
 	""" Class for evaluating feature detectors, descriptors, tracking and matching methods used in a VO pipeline """
-	def __init__(self, vo):
+	def __init__(self, vo, name=""):
 		self.vo = vo
+		self.name = name
 		self.vo_poses = []
 		self.gt_poses = []
 		self.inlier_ratios = []
@@ -159,7 +160,17 @@ class Eval:
 		if self.vo.frame_id > 0:
 			self.inlier_ratios.append(self.vo.inlier_ratio)
 
+
 	def evaluate(self):
+		name = self.name
+		result = {}
+
+		# Create result directory
+		#error_dir = f'./results/{name}_metrics.txt'
+		plot_path_dir = f'./results/plots/{name}/'
+
+		#f = open(error_dir, 'w')
+
 		# Absolute poses
 		gt_poses, vo_poses = self.gt_poses, self.vo_poses
 
@@ -179,10 +190,12 @@ class Eval:
 		# Absolute Trajectory Error (ATE)
 		ate = np.sqrt(np.mean(np.array(trans_errors) ** 2))  # Root Mean Squared Error
 		print(f'Absolute Trajectory Error (ATE) [m]: {ate:.6f}')
+		result['ate'] = ate
 
 		# Absolute Orientation Error (AOE)
 		aoe = np.mean(rot_errors)
 		print(f'Absolute Orientation Error (AOE) [deg]: {aoe*180 / np.pi:.6f}')
+		result['aoe'] = aoe
 
 		# ---- Relative Errors ----
 		rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
@@ -197,10 +210,12 @@ class Eval:
 		# Relative Trajectory Error (RTE)
 		rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
 		print(f'Relative Trajectory Error (RTE) [m]: {rte:.6f}')
+		result['rte'] = rte
 
 		# Relative Rotation Error (RRE)
 		rre = np.sqrt(np.mean(np.array(rel_rot_errors) ** 2))
 		print(f'Relative Rotation Error (RRE) [deg]: {rre*180 / np.pi:.6f}')
+		result['rre'] = rre
 
 		# ---- Yaw, Pitch, Roll ----
 		yaw, pitch, roll = self.compute_orientations(vo_poses)
@@ -212,10 +227,12 @@ class Eval:
 		# ---- RANSAC Inlier Ratio ----
 		inlier_ratios = self.inlier_ratios
 		print(f'RANSAC inlier ratio: {np.mean(inlier_ratios):.3f}')
+		result['inlier_ratio'] = inlier_ratios
 
 		# ---- Processing Time ----
 		run_time = np.mean(self.run_times)
 		print(f'Runtime: {run_time:.3f}s')
+		result['run_time'] = run_time
 
 		# -------------------------
 		# Extract positions for 3d plot
@@ -246,7 +263,7 @@ class Eval:
 									 title='Relative roll across frames',
 									 save_path='./plots/rel_roll.png')
 
-		# TODO: Save to file, find where to put the line below
+		# TODO: Find where to put the line below
 		# cv2.imwrite('plots/map.png', vo_visualizer.traj)
 		# TODO: Make plot for relative yaw, pitch, roll error 
 
