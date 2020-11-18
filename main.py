@@ -8,7 +8,7 @@ from config import Config
 from visualizer import VO_Visualizer
 from pinhole_camera import PinholeCamera
 from visual_odometry import VisualOdometry
-from utils import preprocess_images, plot_3d_traj, plot_inlier_ratio, plot_orientation_angle
+from utils import preprocess_images
 
 
 def run(configuration: dict):
@@ -35,6 +35,7 @@ def run(configuration: dict):
 		vo_eval.update()
 		vo_visualizer.show(img, orig_images[i])
 
+	# Evaluate
 	vo_eval.evaluate(traj=vo_visualizer.traj)
 
 
