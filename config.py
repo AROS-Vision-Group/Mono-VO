@@ -35,8 +35,7 @@ class Config(DefaultConfig):
             self.parse_detector(self.experiment["detector"])
             self.parse_extractor(self.experiment["extractor"])
         except Exception as ex:
-            print(ex)
-
+            pass
 
     def parse_lk_params(self, lk_parmas_dict):
         params = {} if lk_parmas_dict is None else lk_parmas_dict
@@ -50,7 +49,7 @@ class Config(DefaultConfig):
                     params["criteria"] = (criteria_one | criteria_two, max_iterations, epsilon)
             self.lk_params = params
         except Exception as ex:
-            print(ex)
+            pass
 
     def parse_detector(self, detector_string):
         params = {} if self.detector_params is None else self.detector_params
@@ -67,10 +66,8 @@ class Config(DefaultConfig):
             self.detector = detector.ORB(**params)
         elif detector_string.upper() == "AKAZE":
             self.detector = detector.AKAZE(**params)
-        elif detector_string.upper() == "HARRIS":
-            self.detector = detector.HarrisDetector()
         elif detector_string.upper() == "SHI-TOMASI":
-            self.detector = detector.ShiTomasiDetector()
+            self.detector = detector.ShiTomasiDetector(**params)
         else:
             raise ModuleNotFoundError(f"No detector <{detector_string}> found.")
 

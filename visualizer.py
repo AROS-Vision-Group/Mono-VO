@@ -18,11 +18,17 @@ class VO_Visualizer:
 				orig_img = cv2.circle(orig_img, (int(a), int(b)), 2, color=(255, 255, 0), thickness=2,
 									  lineType=cv2.LINE_AA)
 
+	def show_frame_nr(self, orig_img):
+		text = f" {self.vo.frame_id}"
+		cv2.putText(orig_img, text, (920, 50), cv2.FONT_HERSHEY_PLAIN, 4, (255, 255, 255), 2, 8)
+
 	def show(self, img, orig_img):
 		cv2.namedWindow('Snake Robot Camera', cv2.WINDOW_NORMAL)
 		cv2.resizeWindow('Snake Robot Camera', self.W, self.H // 2)
 
 		self.visualize_key_points(orig_img)
+
+		self.show_frame_nr(orig_img)
 
 		hstack = np.hstack((orig_img, img))
 		cv2.imshow('Snake Robot Camera', hstack)

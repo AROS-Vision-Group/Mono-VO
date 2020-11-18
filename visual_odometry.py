@@ -46,6 +46,7 @@ class VisualOdometry:
 
         self.cur_runtime = 0
 
+        print(config.name)
         self.detector = config.detector
         self.detector.set_extractor(config.extractor)
         self.correspondence_method = config.correspondence_method

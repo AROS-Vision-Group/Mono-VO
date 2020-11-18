@@ -1,5 +1,6 @@
 import utils
 import numpy as np
+from utils import init_logger
 
 
 class Eval:
@@ -161,8 +162,7 @@ class Eval:
             self.inlier_ratios.append(self.vo.inlier_ratio)
 
     def evaluate(self, traj=None):
-        import logging
-        from utils import init_logger
+
         result = {'name': self.name}
 
         # Create result directory
@@ -173,9 +173,6 @@ class Eval:
         utils.create_dir(res_dir)
         utils.create_dir(plot_path)
         utils.create_dir(log_path)
-
-        # Initialize logger
-        init_logger(log_path)
 
         # Absolute poses
         gt_poses, vo_poses = self.gt_poses, self.vo_poses
@@ -272,6 +269,9 @@ class Eval:
         if traj is not None:
             import cv2
             cv2.imwrite(f'{plot_path}/2d_live_traj.png', traj)
+
+        # Initialize logger
+        init_logger(log_path)
 
         # Write to log
         utils.pretty_log(result)

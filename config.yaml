@@ -10,10 +10,10 @@ DEFAULTS: &defaults
     cy: !!python/int 540
 
 SHI_TOMASI_PARAMS: &shi-tomasi
-  maxCorners: !!python/int 300
-  qualityLevel: !!python/float 0.03
-  minDistance: !!python/int 50
-  blocksize: !!python/int 10
+  maxCorners: !!python/int 5000
+  qualityLevel: !!python/float 0.1
+  minDistance: !!python/int 10
+  blockSize: !!python/int 10
 
 FAST_PARAMS: &fast
   threshold: !!python/int 10
@@ -66,7 +66,7 @@ EXPERIMENT_0:
   extractor_params: !!python/none None
   lk_params: *lk
   flann_params: !!python/none None
-  k_min_features: !!python/int 2000
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 EXPERIMENT_1:

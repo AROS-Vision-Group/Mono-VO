@@ -35,19 +35,15 @@ class DetectorDescriptorInterface:
 		self.des_extractor = extractor
 
 
-class HarrisDetector(DetectorDescriptorInterface):
-	def __init__(self, des_extractor=None, **params):
-		super().__init__(des_extractor, as_extractor=False)
-
-
 class ShiTomasiDetector(DetectorDescriptorInterface):
 	def __init__(self, des_extractor=None, **params):
 		super().__init__(des_extractor, as_extractor=False)
+		print(params)
+		self.detector = cv2.GFTTDetector_create(**params)
 
 	def get_keypoints(self, frame):
-		corners = cv2.goodFeaturesToTrack(frame, **self.params)
-		kp = [cv2.KeyPoint(x=f[0][0], y=f[0][1], _size=1) for f in corners]
-
+		kp = self.detector.detect(frame)
+		print(len(kp))
 		return kp
 
 	def get_descriptors(self, frame, kp):

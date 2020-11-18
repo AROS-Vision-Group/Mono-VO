@@ -26,8 +26,8 @@ def run(configuration: dict):
 	vo_visualizer = VO_Visualizer(vo, W, H)
 
 	# Fetch and initialize preprocessing of images
-	orig_images = preprocess_images(image_path, default=True)[:200]
-	preprocessed_images = preprocess_images(image_path, morphology=config.toggle_morphology)[:200]
+	orig_images = preprocess_images(image_path, default=True)[:180]
+	preprocessed_images = preprocess_images(image_path, morphology=config.toggle_morphology)[:180]
 
 	# Run
 	for i, img in enumerate(preprocessed_images):
