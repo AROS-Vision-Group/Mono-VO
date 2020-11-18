@@ -1,273 +1,277 @@
 import utils
 import numpy as np
-import matplotlib.pyplot as plt
-import cv2
-import sys
 
 
 class Eval:
-	""" Class for evaluating feature detectors, descriptors, tracking and matching methods used in a VO pipeline """
+    """ Class for evaluating feature detectors, descriptors, tracking and matching methods used in a VO pipeline """
 
-	def __init__(self, vo, name=""):
-		self.vo = vo
-		self.name = name
-		self.vo_poses = []
-		self.gt_poses = []
-		self.inlier_ratios = []
-		self.runtimes = []
+    def __init__(self, vo, name="", res_dir=""):
+        self.vo = vo
+        self.name = name
+        self.vo_poses = []
+        self.gt_poses = []
+        self.inlier_ratios = []
+        self.runtimes = []
 
-	def get_relative_poses(self, abs_poses):
-		""" Calculates the relative poses from the absolute ones
+    @staticmethod
+    def get_relative_poses(abs_poses):
+        """ Calculates the relative poses from the absolute ones
 
-		:param abs_poses: absolute poses (4x4 array)
-		:return: rel_poses: list of poses, each relative to the previous pose
-		"""
+        :param abs_poses: absolute poses (4x4 array)
+        :return: rel_poses: list of poses, each relative to the previous pose
+        """
 
-		rel_poses = []
-		for i in range(len(abs_poses) - 1):
-			pose1, pose2 = abs_poses[i], abs_poses[i + 1]
-			rel_poses.append(np.dot(
-				np.linalg.inv(pose1),
-				pose2)
-			)
+        rel_poses = []
+        for i in range(len(abs_poses) - 1):
+            pose1, pose2 = abs_poses[i], abs_poses[i + 1]
+            rel_poses.append(np.dot(
+                np.linalg.inv(pose1),
+                pose2)
+            )
 
-		return rel_poses
+        return rel_poses
 
-	def rotation_error(self, pose_error):
-		"""Compute rotation error
+    @staticmethod
+    def rotation_error(pose_error):
+        """Compute rotation error
 
-		:param pose_error: relative pose error (4x4 array)
-		:return: rot_error: rotation error (float)
-		"""
+        :param pose_error: relative pose error (4x4 array)
+        :return: rot_error: rotation error (float)
+        """
 
-		a = pose_error[0, 0]
-		b = pose_error[1, 1]
-		c = pose_error[2, 2]
-		d = 0.5 * (a + b + c - 1.0)
-		rot_error = np.arccos(max(min(d, 1.0), -1.0))
-		return rot_error
+        a = pose_error[0, 0]
+        b = pose_error[1, 1]
+        c = pose_error[2, 2]
+        d = 0.5 * (a + b + c - 1.0)
+        rot_error = np.arccos(max(min(d, 1.0), -1.0))
+        return rot_error
 
-	def translation_error(self, pose_error):
-		"""Compute translation error
+    @staticmethod
+    def translation_error(pose_error):
+        """Compute translation error
 
-		:param pose_error: relative pose error (4x4 array)
-		:return: trans_error: translation error as euclidean distance (float)
-		"""
+        :param pose_error: relative pose error (4x4 array)
+        :return: trans_error: translation error as euclidean distance (float)
+        """
 
-		dx = pose_error[0, 3]
-		dy = pose_error[1, 3]
-		dz = pose_error[2, 3]
-		trans_error = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+        dx = pose_error[0, 3]
+        dy = pose_error[1, 3]
+        dz = pose_error[2, 3]
+        trans_error = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
 
-		return trans_error
+        return trans_error
 
-	def compute_errors(self, gt_poses, vo_poses):
-		""" Calculate translation and rotation errors
+    @staticmethod
+    def compute_orientations(poses):
+        """ Compute orientation (yaw, pitch, roll) for each pose """
+        yaw_list, pitch_list, roll_list = [], [], []
+        for pose in poses:
+            R = pose[:3, :3]
+            roll, pitch, yaw = utils.rotation_matrix_to_euler_angles(R)
+            yaw_list.append(yaw)
+            pitch_list.append(pitch)
+            roll_list.append(roll)
 
-		:param gt_poses: ground-truth poses (4x4 array)
-		:param vo_poses: estimated poses (4x4 array)
-		:return: rotation errors, translation errors
-		"""
+        return np.array(yaw_list), np.array(pitch_list), np.array(roll_list)
 
-		trans_errors = []
-		rot_errors = []
+    @staticmethod
+    def compute_ATE(gt_poses, vo_poses):
+        """ Compute RMSE of ATE (Absolute Trajectory Error)
 
-		for gt_rel, vo_rel in zip(gt_poses, vo_poses):
-			rel_error = np.dot(
-				np.linalg.inv(gt_rel),
-				vo_rel
-			)
-			trans_errors.append(self.translation_error(rel_error))
-			rot_errors.append(self.rotation_error(rel_error))
+        :param gt_poses: ground-truth poses (4x4 array)
+        :param vo_poses: estimated poses (4x4 array)
+        :return: ate: absolute trajectory error (float)
+        """
+        errors = []
 
-		return rot_errors, trans_errors
+        for gt_pose, vo_pose in zip(gt_poses, vo_poses):
+            gt_xyz = gt_pose[:3, 3]
+            vo_xyz = vo_pose[:3, 3]
 
-	def compute_orientations(self, poses):
-		""" Compute orientation (yaw, pitch, roll) for each pose """
-		yaw_list, pitch_list, roll_list = [], [], []
-		for pose in poses:
-			R = pose[:3, :3]
-			roll, pitch, yaw = utils.rotation_matrix_to_euler_angles(R)
-			yaw_list.append(yaw)
-			pitch_list.append(pitch)
-			roll_list.append(roll)
+            align_err = gt_xyz - vo_xyz
+            errors.append(np.sqrt(np.sum(align_err ** 2)))
 
-		return np.array(yaw_list), np.array(pitch_list), np.array(roll_list)
+        ate = np.sqrt(np.mean(np.array(errors)))
+        return ate
 
-	def compute_ATE(self, gt_poses, vo_poses):
-		""" Compute RMSE of ATE (Absolute Trajectory Error)
+    def compute_errors(self, gt_poses, vo_poses):
+        """ Calculate translation and rotation errors
 
-		:param gt_poses: ground-truth poses (4x4 array)
-		:param vo_poses: estimated poses (4x4 array)
-		:return: ate: absolute trajectory error (float)
-		"""
-		errors = []
+        :param gt_poses: ground-truth poses (4x4 array)
+        :param vo_poses: estimated poses (4x4 array)
+        :return: rotation errors, translation errors
+        """
 
-		for gt_pose, vo_pose in zip(gt_poses, vo_poses):
-			gt_xyz = gt_pose[:3, 3]
-			vo_xyz = vo_pose[:3, 3]
+        trans_errors = []
+        rot_errors = []
 
-			align_err = gt_xyz - vo_xyz
-			errors.append(np.sqrt(np.sum(align_err ** 2)))
+        for gt_rel, vo_rel in zip(gt_poses, vo_poses):
+            rel_error = np.dot(
+                np.linalg.inv(gt_rel),
+                vo_rel
+            )
+            trans_errors.append(self.translation_error(rel_error))
+            rot_errors.append(self.rotation_error(rel_error))
 
-		ate = np.sqrt(np.mean(np.array(errors)))
-		return ate
+        return rot_errors, trans_errors
 
-	def compute_AOE(self, gt_poses, vo_poses):
-		""" Compute Absolute Orientation Error
+    def compute_AOE(self, gt_poses, vo_poses):
+        """ Compute Absolute Orientation Error
 
-		:param gt_poses: ground-truth poses (4x4 array)
-		:param vo_poses: estimated poses (4x4 array)
-		:return: aoe: absolute orientation error (float)
-		"""
-		rot_errors = []
-		for gt_pose, vo_pose in zip(gt_poses, vo_poses):
-			pose_error = np.dot(
-				np.linalg.inv(gt_pose),
-				vo_pose
-			)
-			rot_errors.append(self.rotation_error(pose_error))
+        :param gt_poses: ground-truth poses (4x4 array)
+        :param vo_poses: estimated poses (4x4 array)
+        :return: aoe: absolute orientation error (float)
+        """
+        rot_errors = []
+        for gt_pose, vo_pose in zip(gt_poses, vo_poses):
+            pose_error = np.dot(
+                np.linalg.inv(gt_pose),
+                vo_pose
+            )
+            rot_errors.append(self.rotation_error(pose_error))
 
-		return np.array(rot_errors)
+        return np.array(rot_errors)
 
-	def add_pose(self):
-		hom_row = np.array([[0, 0, 0, 1]])
+    def add_pose(self):
+        hom_row = np.array([[0, 0, 0, 1]])
 
-		vo_pose = np.hstack((self.vo.cur_R, self.vo.cur_t))  # 3x4
-		vo_pose = np.concatenate((vo_pose, hom_row), axis=0)  # Add homogeneous part to make 4x4
+        vo_pose = np.hstack((self.vo.cur_R, self.vo.cur_t))  # 3x4
+        vo_pose = np.concatenate((vo_pose, hom_row), axis=0)  # Add homogeneous part to make 4x4
 
-		gt_pose = np.hstack((self.vo.true_R, self.vo.true_t))  # 3x4
-		gt_pose = np.concatenate((gt_pose, hom_row), axis=0)  # Add homogeneous part to make 4x4
+        gt_pose = np.hstack((self.vo.true_R, self.vo.true_t))  # 3x4
+        gt_pose = np.concatenate((gt_pose, hom_row), axis=0)  # Add homogeneous part to make 4x4
 
-		self.vo_poses.append(vo_pose)
-		self.gt_poses.append(gt_pose)
+        self.vo_poses.append(vo_pose)
+        self.gt_poses.append(gt_pose)
 
-	def get_positions(self, poses):
-		xs, ys, zs = [], [], []
-		for pose in poses:
-			xs.append(pose[0, 3])
-			ys.append(pose[1, 3])
-			zs.append(pose[2, 3])
+    def get_positions(self, poses):
+        xs, ys, zs = [], [], []
+        for pose in poses:
+            xs.append(pose[0, 3])
+            ys.append(pose[1, 3])
+            zs.append(pose[2, 3])
 
-		return np.array(xs), np.array(ys), np.array(zs)
+        return np.array(xs), np.array(ys), np.array(zs)
 
-	def update(self):
-		self.add_pose()
-		self.runtimes.append(self.vo.cur_runtime)
+    def update(self):
+        self.add_pose()
+        self.runtimes.append(self.vo.cur_runtime)
 
-		if self.vo.frame_id > 0:
-			self.inlier_ratios.append(self.vo.inlier_ratio)
+        if self.vo.frame_id > 0:
+            self.inlier_ratios.append(self.vo.inlier_ratio)
 
-	def evaluate(self, traj=None):
-		result = {}
-		result['name'] = self.name
+    def evaluate(self, traj=None):
+        import logging
+        from utils import init_logger
+        result = {'name': self.name}
 
-		# Create result directory
-		res_dir = f'./results/{self.name}'
-		plot_path = f'{res_dir}/plots/'
+        # Create result directory
+        res_dir = f'./results/{self.name}'
+        plot_path = f'{res_dir}/plots/'
+        log_path = f'{res_dir}/logs/'
 
-		utils.create_dir(res_dir)
-		utils.create_dir(plot_path)
+        utils.create_dir(res_dir)
+        utils.create_dir(plot_path)
+        utils.create_dir(log_path)
 
-		# Absolute poses
-		gt_poses, vo_poses = self.gt_poses, self.vo_poses
+        # Initialize logger
+        init_logger(log_path)
 
-		# Relative poses
-		rel_gt_poses, rel_vo_poses = self.get_relative_poses(gt_poses), self.get_relative_poses(vo_poses)
+        # Absolute poses
+        gt_poses, vo_poses = self.gt_poses, self.vo_poses
 
-		# ---- Absolute Errors ----
-		rot_errors, trans_errors = self.compute_errors(gt_poses, vo_poses)
+        # Relative poses
+        rel_gt_poses, rel_vo_poses = self.get_relative_poses(gt_poses), self.get_relative_poses(vo_poses)
 
-		# Absolute Trajectory Error (ATE)
-		ate = np.sqrt(np.mean(np.array(trans_errors) ** 2))  # Root Mean Squared Error
-		print(f'Absolute Trajectory Error (ATE) [m]: {ate:.6f}')
-		result['ate'] = ate
+        # ---- Absolute Errors ----
+        rot_errors, trans_errors = self.compute_errors(gt_poses, vo_poses)
 
-		# Absolute Orientation Error (AOE)
-		aoe = np.mean(rot_errors)
-		print(f'Absolute Orientation Error (AOE) [deg]: {aoe * 180 / np.pi:.6f}')
-		result['aoe'] = aoe
+        # Absolute Trajectory Error (ATE)
+        ate = np.sqrt(np.mean(np.array(trans_errors) ** 2))  # Root Mean Squared Error
+        result['ate'] = ate
 
-		# ---- Relative Errors ----
-		rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
+        # Absolute Orientation Error (AOE)
+        aoe = np.mean(rot_errors) * 180 / np.pi
+        result['aoe'] = aoe
 
-		# Relative Trajectory Error (RTE)
-		rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
-		print(f'Relative Trajectory Error (RTE) [m]: {rte:.6f}')
-		result['rte'] = rte
+        # ---- Relative Errors ----
+        rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
 
-		# Relative Rotation Error (RRE)
-		rre = np.sqrt(np.mean(np.array(rel_rot_errors) ** 2))
-		print(f'Relative Rotation Error (RRE) [deg]: {rre * 180 / np.pi:.6f}')
-		result['rre'] = rre
+        # Relative Trajectory Error (RTE)
+        rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
+        result['rte'] = rte
 
-		# ---- Yaw, Pitch, Roll ----
-		yaw, pitch, roll = self.compute_orientations(vo_poses)
-		true_yaw, true_pitch, true_roll = self.compute_orientations(gt_poses)
+        # Relative Rotation Error (RRE)
+        rre = np.sqrt(np.mean(np.array(rel_rot_errors) ** 2)) * 180 / np.pi
+        result['rre'] = rre
 
-		rel_yaw, rel_pitch, rel_roll = self.compute_orientations(rel_vo_poses)
-		true_rel_yaw, true_rel_pitch, true_rel_roll = self.compute_orientations(rel_gt_poses)
+        # ---- Yaw, Pitch, Roll ----
+        yaw, pitch, roll = self.compute_orientations(vo_poses)
+        true_yaw, true_pitch, true_roll = self.compute_orientations(gt_poses)
 
-		yaw_errors, pitch_errors, roll_errors = yaw - true_yaw, pitch - true_pitch, roll - true_roll
+        rel_yaw, rel_pitch, rel_roll = self.compute_orientations(rel_vo_poses)
+        true_rel_yaw, true_rel_pitch, true_rel_roll = self.compute_orientations(rel_gt_poses)
 
+        yaw_errors, pitch_errors, roll_errors = yaw - true_yaw, pitch - true_pitch, roll - true_roll
 
-		inlier_ratios = self.inlier_ratios
-		print(f'RANSAC inlier ratio: {np.mean(inlier_ratios):.3f}')
-		result['inlier_ratio'] = inlier_ratios
+        inlier_ratios = np.mean(self.inlier_ratios)
+        result['inlier_ratio'] = inlier_ratios
 
-		# ---- Processing Time ----
-		runtime = np.mean(self.runtimes)
-		print(f'Runtime: {runtime:.3f}s')
-		result['runtime'] = runtime
+        # ---- Processing Time ----
+        runtime = np.mean(self.runtimes)
+        result['runtime'] = runtime
 
-		# -------------------------
-		xs, ys, zs = self.get_positions(vo_poses)
-		true_xs, true_ys, true_zs = self.get_positions(gt_poses)
-		x_errors, y_errors, z_errors = xs - true_xs, ys - true_ys, zs - true_zs
+        # -------------------------
+        xs, ys, zs = self.get_positions(vo_poses)
+        true_xs, true_ys, true_zs = self.get_positions(gt_poses)
+        x_errors, y_errors, z_errors = xs - true_xs, ys - true_ys, zs - true_zs
 
-		# ---- PLOTS ----
-		utils.plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs,
-						   save_path=f'{plot_path}/3d_traj.png')
+        # ---- PLOTS ----
+        utils.plot_3d_traj(xs, ys, zs, true_xs, true_ys, true_zs,
+                           save_path=f'{plot_path}/3d_traj.png')
 
-		utils.plot_translation_error(trans_errors,
-									 title="Absolute Translation Error",
-									 save_path=f'{plot_path}/translation_error.png')
-		utils.plot_rotation_erros(rot_errors,
-								  title='Absolute Rotation Error',
-								  save_path=f'{plot_path}/rotation_error.png')
+        utils.plot_translation_error(trans_errors,
+                                     title="Absolute Translation Error",
+                                     save_path=f'{plot_path}/translation_error.png')
+        utils.plot_rotation_erros(rot_errors,
+                                  title='Absolute Rotation Error',
+                                  save_path=f'{plot_path}/rotation_error.png')
 
-		utils.plot_rotation_erros(rel_rot_errors,
-								  title='Relative Rotation Error',
-								  save_path=f'{plot_path}/rel_rotation_error.png')
-		utils.plot_translation_error(rel_trans_errors,
-									 title="Relative Translation Error",
-									 save_path=f'{plot_path}/rel_translation_error.png')
-		utils.plot_inlier_ratio(self.inlier_ratios,
-								save_path=f'{plot_path}/inlier_ratio.png')
+        utils.plot_rotation_erros(rel_rot_errors,
+                                  title='Relative Rotation Error',
+                                  save_path=f'{plot_path}/rel_rotation_error.png')
+        utils.plot_translation_error(rel_trans_errors,
+                                     title="Relative Translation Error",
+                                     save_path=f'{plot_path}/rel_translation_error.png')
+        utils.plot_inlier_ratio(self.inlier_ratios,
+                                save_path=f'{plot_path}/inlier_ratio.png')
 
-		utils.plot_position_error(x_errors, y_errors, z_errors, save_path=f'{plot_path}/position_errors.png')
-		utils.plot_orientation_error(yaw_errors, pitch_errors, roll_errors, save_path=f"{plot_path}/orientation_errors.png")
+        utils.plot_position_error(x_errors, y_errors, z_errors, save_path=f'{plot_path}/position_errors.png')
+        utils.plot_orientation_error(yaw_errors, pitch_errors, roll_errors,
+                                     save_path=f"{plot_path}/orientation_errors.png")
 
-		utils.plot_orientation_angle(true_yaw, yaw, 'yaw',
-									 title='Yaw across frames',
-									 save_path=f'{plot_path}/yaw.png')
-		utils.plot_orientation_angle(true_pitch, pitch, 'pitch',
-									 title='Pitch across frames',
-									 save_path=f'{plot_path}/pitch.png')
-		utils.plot_orientation_angle(true_roll, roll, 'roll',
-									 title='Roll across frames',
-									 save_path=f'{plot_path}/roll.png')
+        utils.plot_orientation_angle(true_yaw, yaw, 'yaw',
+                                     title='Yaw across frames',
+                                     save_path=f'{plot_path}/yaw.png')
+        utils.plot_orientation_angle(true_pitch, pitch, 'pitch',
+                                     title='Pitch across frames',
+                                     save_path=f'{plot_path}/pitch.png')
+        utils.plot_orientation_angle(true_roll, roll, 'roll',
+                                     title='Roll across frames',
+                                     save_path=f'{plot_path}/roll.png')
 
-		utils.plot_orientation_angle(true_rel_yaw, rel_yaw, 'rel_yaw',
-									 title='Relative yaw across frames',
-									 save_path=f'{plot_path}/rel_yaw.png')
-		utils.plot_orientation_angle(true_rel_pitch, rel_pitch, 'rel_pitch',
-									 title='Relative pitch across frames',
-									 save_path=f'{plot_path}/rel_pitch.png')
-		utils.plot_orientation_angle(true_rel_roll, rel_roll, 'rel_roll',
-									 title='Relative roll across frames',
-									 save_path=f'{plot_path}/rel_roll.png')
-		if traj is not None:
-			cv2.imwrite(f'{plot_path}/2d_live_traj.png', traj)
+        utils.plot_orientation_angle(true_rel_yaw, rel_yaw, 'rel_yaw',
+                                     title='Relative yaw across frames',
+                                     save_path=f'{plot_path}/rel_yaw.png')
+        utils.plot_orientation_angle(true_rel_pitch, rel_pitch, 'rel_pitch',
+                                     title='Relative pitch across frames',
+                                     save_path=f'{plot_path}/rel_pitch.png')
+        utils.plot_orientation_angle(true_rel_roll, rel_roll, 'rel_roll',
+                                     title='Relative roll across frames',
+                                     save_path=f'{plot_path}/rel_roll.png')
+        if traj is not None:
+            import cv2
+            cv2.imwrite(f'{plot_path}/2d_live_traj.png', traj)
 
-		# TODO: Logging, 'results'-dict contains the metrics for logging
+        # Write to log
+        utils.pretty_log(result)

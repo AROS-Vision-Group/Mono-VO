@@ -34,31 +34,29 @@ class Config(DefaultConfig):
             self.parse_lk_params(self.experiment["lk_params"])
             self.parse_detector(self.experiment["detector"])
             self.parse_extractor(self.experiment["extractor"])
-        except AttributeError:
-            pass
+        except Exception as ex:
+            print(ex)
 
 
     def parse_lk_params(self, lk_parmas_dict):
+        params = {} if lk_parmas_dict is None else lk_parmas_dict
         try:
-            for key, values in lk_parmas_dict.items():
+            for key, values in params.items():
                 if key.upper() == "CRITERIA":
                     criteria_one = values[0]
                     criteria_two = values[1]
                     max_iterations = values[2]
                     epsilon = values[3]
-                    lk_parmas_dict["criteria"] = (criteria_one | criteria_two, max_iterations, epsilon)
-            self.lk_params = lk_parmas_dict
-        except AttributeError:
-            # raise AttributeError("No LK Params.")
-            pass
+                    params["criteria"] = (criteria_one | criteria_two, max_iterations, epsilon)
+            self.lk_params = params
+        except Exception as ex:
+            print(ex)
 
     def parse_detector(self, detector_string):
         params = {} if self.detector_params is None else self.detector_params
 
         if detector_string.upper() == "FAST":
             self.detector = detector.FAST_Detector(**params)
-        elif detector_string.upper() == "HARRIS":
-            self.detector = detector.HarrisDetector()
         elif detector_string.upper() == "CENSURE":
             self.detector = detector.CenSurE_Detector(**params)
         elif detector_string.upper() == "SIFT":
@@ -69,8 +67,12 @@ class Config(DefaultConfig):
             self.detector = detector.ORB(**params)
         elif detector_string.upper() == "AKAZE":
             self.detector = detector.AKAZE(**params)
+        elif detector_string.upper() == "HARRIS":
+            self.detector = detector.HarrisDetector()
+        elif detector_string.upper() == "SHI-TOMASI":
+            self.detector = detector.ShiTomasiDetector()
         else:
-            raise ModuleNotFoundError(f"No detector <{self.detector}> found.")
+            raise ModuleNotFoundError(f"No detector <{detector_string}> found.")
 
     def parse_extractor(self, extractor_string):
         as_extractor = False
@@ -90,4 +92,4 @@ class Config(DefaultConfig):
         elif extractor_string.upper() == "BRIEF":
             self.extractor = detector.BRIEF_Extractor(**params)
         else:
-            raise ModuleNotFoundError(f"No descriptor extractor <{self.detector}> found.")
+            raise ModuleNotFoundError(f"No descriptor extractor <{extractor_string}> found.")

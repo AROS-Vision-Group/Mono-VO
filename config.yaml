@@ -9,15 +9,18 @@ DEFAULTS: &defaults
     cx: !!python/int 960
     cy: !!python/int 540
 
+SHI_TOMASI_PARAMS: &shi-tomasi
+  maxCorners: !!python/int 300
+  qualityLevel: !!python/float 0.03
+  minDistance: !!python/int 50
+  blocksize: !!python/int 10
 
 FAST_PARAMS: &fast
   threshold: !!python/int 10
   nonmaxSuppression: !!python/bool True
 
-
 ORB_PARAMS: &orb
   nfeatures: !!python/int 5000
-
 
 BRIEF_PARAMS: &brief
   use_orientation: !!python/bool True
@@ -54,6 +57,17 @@ FLANN_PARAMS:
     search_params:
       checks: !!python/int 50
 
+EXPERIMENT_0:
+  name: !!python/str 'ShiTomasi-NONE-OpticalFlow'
+  correspondence_method: !!python/str 'tracking'
+  detector: !!python/str 'SHI-TOMASI'
+  detector_params: *shi-tomasi
+  extractor: !!python/none None
+  extractor_params: !!python/none None
+  lk_params: *lk
+  flann_params: !!python/none None
+  k_min_features: !!python/int 2000
+  toggle_morphology: !!python/bool False
 
 EXPERIMENT_1:
   name: !!python/str 'FAST-NONE-OpticalFlow'
