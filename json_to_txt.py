@@ -5,7 +5,7 @@ import utils
 
 def prepare_ground_truth(filepath, t_inv_matrix):
     with open(filepath, 'r') as f:
-        with open('data/transformed_ground_truth_vol2.txt', 'w') as out:
+        with open('../data/images_v5/transformed_ground_truth_v5.txt', 'w') as out:
             d = json.load(f)
             for data in d["Camera"]:
                 data = np.array(data)
@@ -41,25 +41,25 @@ def flip_y_and_z_axis(R):
 
 
 if __name__ == '__main__':
-    filepath = './data/blender_underwater_env_ground_truth_poses.json'
+    filepath = '../data/images_v5/ground_truth/20201119_SEQ04_poses.json'
     origin_transformation_mtx = np.array([
         [
-            -0.40673887171736184,
-            0.9135444653834002,
+            -0.7678427961387309,
+            -0.6406383070160654,
             1.2021145039395212e-06,
-            0.22304523604587842
+            2.4353469958755083
         ],
         [
-            -0.14605695240041458,
-            -0.0650304707959155,
-            0.9871364670214371,
-            -0.07497521108390426
+            0.26665372435662815,
+            -0.31959850985276905,
+            0.9092593600214567,
+            0.5462201582324964
         ],
         [
-            0.9017931341996291,
-            0.4015065972501812,
-            0.159879940814945,
-            -5.6632791527651305
+            -0.5825059928486529,
+            0.6981685699624978,
+            0.4162300039784807,
+            -4.676882368277332
         ],
         [
             0.0,
