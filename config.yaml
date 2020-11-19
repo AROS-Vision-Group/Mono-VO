@@ -1,6 +1,6 @@
 DEFAULTS: &defaults
-  ANNOTATIONS: !!python/str './data/transformed_ground_truth_vol2.txt'
-  IMAGES: !!python/str 'data/images_v1/*.jpg'
+  ANNOTATIONS: !!python/str './data/images_v2/eevee/transformed_eevee_v2.txt'
+  IMAGES: !!python/str 'data/images_v2/eevee/renders_compressed/*.jpg'
   W: !!python/int 1920
   H: !!python/int 1080
   PIN_HOLE_PARAMS:
@@ -32,6 +32,20 @@ SIFT_PARAMS: &sift
   edgeThreshold: !!python/int 10
   sigma: !!python/float 1.6
 
+CENSURE_PARAMS: &censure
+  maxSize: !!python/int 45
+  responseThreshold: !!python/int 30
+  lineThresholdProjected: !!python/int 10
+  lineThresholdBinarized: !!python/int 8
+  suppressNonmaxSize: !!python/int 5
+
+AKAZE_PARAMS: &akaze
+#  extended: !!python/bool False
+#  upright: !!python/bool False
+  threshold: !!python/float 0.05
+  nOctaves: !!python/int 3
+  nOctaveLayers: !!python/int 3
+#  diffusivity: !!python/int 1 # DIFF_PM_G2
 
 LK_PARAMS: &lk
   winSize: !!python/tuple [21, 21]
@@ -39,7 +53,6 @@ LK_PARAMS: &lk
   criteria: !!python/tuple [2, 1, 30, 0.01]  # (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01)
   flags: !!python/int 8                    # cv2.OPTFLOW_LK_GET_MIN_EIGENVALS
   minEigThreshold: !!python/float 0.0001 # 1e-4
-
 
 FLANN_PARAMS:
   NON_SIFT: &flann-not-sift
@@ -67,7 +80,7 @@ EXPERIMENT_0:
   lk_params: *lk
   flann_params: !!python/none None
   k_min_features: !!python/int 1200
-  toggle_morphology: !!python/bool False
+  toggle_morphology: !!python/bool True
 
 EXPERIMENT_1:
   name: !!python/str 'FAST-NONE-OpticalFlow'
@@ -140,3 +153,39 @@ EXPERIMENT_6:
   flann_params: *flann-not-sift
   k_min_features: !!python/none None
   toggle_morphology: !!python/bool False
+
+EXPERIMENT_7:
+  name: !!python/str 'AKAZE-NONE-OpticalFlow'
+  correspondence_method: !!python/str 'tracking'
+  detector: !!python/str 'AKAZE'
+  detector_params: *akaze
+  extractor:
+  extractor_params:
+  lk_params: *lk
+  flann_params: !!python/none None
+  k_min_features: !!python/int 800
+  toggle_morphology: !!python/bool True
+
+EXPERIMENT_8:
+  name: !!python/str 'ORB-NONE-OpticalFlow'
+  correspondence_method: !!python/str 'tracking'
+  detector: !!python/str 'ORB'
+  detector_params: *orb
+  extractor: !!python/none None
+  extractor_params: !!python/none None
+  lk_params: *lk
+  flann_params: !!python/none None
+  k_min_features: !!python/int 1200
+  toggle_morphology: !!python/bool True
+
+EXPERIMENT_9:
+  name: !!python/str 'CENSURE-BRIEF-FLANN'
+  correspondence_method: !!python/str 'matching'
+  detector: !!python/str 'CENSURE'
+  detector_params: *censure
+  extractor: !!python/str 'BRIEF'
+  extractor_params: *brief
+  lk_params: !!python/none None
+  flann_params: *flann-not-sift
+  k_min_features: !!python/none None
+  toggle_morphology: !!python/bool True

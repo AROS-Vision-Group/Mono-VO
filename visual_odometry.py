@@ -127,7 +127,7 @@ class VisualOdometry:
                                        prob=0.999, threshold=1.0)
 
         self.inlier_ratio = np.sum(mask) / (len(mask) + 1)
-        self.cur_lines = cv2.computeCorrespondEpilines(self.prev_points.reshape(-1, 1, 2), 2, E)
+        # self.cur_lines = cv2.computeCorrespondEpilines(self.prev_points.reshape(-1, 1, 2), 2, E)
 
         _, R, t, mask = cv2.recoverPose(E, self.cur_points, self.prev_points, focal=self.focal, pp=self.pp,
                                         mask=mask)

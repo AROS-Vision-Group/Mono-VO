@@ -22,12 +22,12 @@ def run(configuration: dict):
 	# Initilalize
 	cam = PinholeCamera(width=float(W), height=float(H), **pin_hole_params)
 	vo = VisualOdometry(cam, annotations=annotations, config=config)
-	vo_eval = Eval(vo, name=config.name)
+	vo_eval = Eval(vo, config)
 	vo_visualizer = VO_Visualizer(vo, W, H)
 
 	# Fetch and initialize preprocessing of images
-	orig_images = preprocess_images(image_path, default=True)[:180]
-	preprocessed_images = preprocess_images(image_path, morphology=config.toggle_morphology)[:180]
+	orig_images = preprocess_images(image_path, default=True)
+	preprocessed_images = preprocess_images(image_path, morphology=config.toggle_morphology)
 
 	# Run
 	for i, img in enumerate(preprocessed_images):

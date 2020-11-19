@@ -2,9 +2,7 @@ import cv2
 import utils
 import numpy as np
 
-
 class DetectorDescriptorInterface:
-
 	def __init__(self, des_extractor, as_extractor):
 		self.detector = None
 		self.des_extractor = des_extractor
