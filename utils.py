@@ -173,16 +173,18 @@ def preprocess_images(filepath, default=False, morphology=False):
             processed_img = cv2.adaptiveThreshold(processed_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                                   cv2.THRESH_BINARY_INV, 7, 2)
             kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, ksize=(3, 3))
-            # img_erosion = cv2.erode(img, kernel, iterations=1)
             processed_img = cv2.dilate(processed_img, kernel, iterations=3)
             processed_img = cv2.morphologyEx(processed_img, cv2.MORPH_CLOSE, kernel, iterations=1)
-        # processed_img = cv2.morphologyEx(processed_img, cv2.MORPH_OPEN, kernel, iterations=1)
         else:
             processed_img = cv2.GaussianBlur(processed_img, (7, 7), 0)
-            processed_img = cv2.adaptiveThreshold(processed_img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY,
-                                                  7, 2)
-            processed_img = processed_img
+            processed_img = cv2.adaptiveThreshold(processed_img,
+                                                  maxValue=255,
+                                                  adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                                  thresholdType=cv2.THRESH_BINARY,
+                                                  blockSize=7,
+                                                  C=2)
         out.append(processed_img)
+
     return out
 
 
@@ -316,12 +318,17 @@ def init_logger(filepath):
             logging.StreamHandler()
         ])
 
-def pretty_log(results):
+def pretty_log(config, results):
     output =    f"\nExperiment:\t{results['name']}" \
-             + f"\nAbsolute Trajectory Error(ATE)[m]:\t{results['ate']}" \
-             + f"\nAbsolute Orientation Error(AOE)[deg]:\t{results['aoe']}" \
-             + f"\nRelative Trajectory Error(RTE)[m]:\t{results['rte']}" \
-             + f"\nRelative Rotation Error(RRE)[deg]:\t{results['rre']}" \
-             + f"\nRANSAC inlier ratio:\t{results['inlier_ratio']}" \
-             + f"\nRuntime:\t{results['runtime']}"
+                f"\nAbsolute Trajectory Error(ATE)[m]:\t{results['ate']}" \
+                f"\nAbsolute Orientation Error(AOE)[deg]:\t{results['aoe']}" \
+                f"\nRelative Trajectory Error(RTE)[m]:\t{results['rte']}" \
+                f"\nRelative Rotation Error(RRE)[deg]:\t{results['rre']}" \
+                f"\nRANSAC inlier ratio:\t{results['inlier_ratio']}" \
+                f"\nRuntime:\t{results['runtime']}" \
+                f"\nParams for {config.detector}" \
+                f"\n{config.detector_params}" \
+                f"\nParams for LK:" \
+                f"\n{config.lk_params}"
+
     logging.info(output)

@@ -6,9 +6,10 @@ from utils import init_logger
 class Eval:
     """ Class for evaluating feature detectors, descriptors, tracking and matching methods used in a VO pipeline """
 
-    def __init__(self, vo, name="", res_dir=""):
+    def __init__(self, vo, config):
+        self.config = config
         self.vo = vo
-        self.name = name
+        self.name = config.name
         self.vo_poses = []
         self.gt_poses = []
         self.inlier_ratios = []
@@ -274,4 +275,4 @@ class Eval:
         init_logger(log_path)
 
         # Write to log
-        utils.pretty_log(result)
+        utils.pretty_log(config=self.config, results=result)
