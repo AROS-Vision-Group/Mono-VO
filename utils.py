@@ -319,6 +319,13 @@ def init_logger(filepath):
         ])
 
 def pretty_log(config, results):
+    if config.correspondence_method == 'matching':
+        tracker = 'FLANN matcher'
+        tracker_params = config.flann_params
+    else:
+        tracker = 'Lucas-Kanade Optical Flow'
+        tracker_params = config.lk_params
+
     output =    f"\nExperiment:\t{results['name']}" \
                 f"\nAbsolute Trajectory Error(ATE)[m]:\t{results['ate']}" \
                 f"\nAbsolute Orientation Error(AOE)[deg]:\t{results['aoe']}" \
@@ -326,9 +333,14 @@ def pretty_log(config, results):
                 f"\nRelative Rotation Error(RRE)[deg]:\t{results['rre']}" \
                 f"\nRANSAC inlier ratio:\t{results['inlier_ratio']}" \
                 f"\nRuntime:\t{results['runtime']}" \
-                f"\nParams for {config.detector}" \
-                f"\n{config.detector_params}" \
-                f"\nParams for LK:" \
-                f"\n{config.lk_params}"
+                f"\n\nParams for {config.detector} detector:" \
+                f"\n{config.detector_params}"
+
+    if config.extractor is not None:
+        output += f"\nParams for {config.extractor} extractor: " \
+                  f"\n{config.extractor_params}"
+
+    output +=   f"\nParams for {tracker}:" \
+                f"\n{tracker_params}"
 
     logging.info(output)

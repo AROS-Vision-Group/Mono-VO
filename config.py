@@ -20,10 +20,8 @@ class Config(DefaultConfig):
     def __init__(self, configuration):
         super().__init__(configuration)
         self.defaults = configuration["DEFAULTS"]
-
-
         self.dataset_version = str(argv[1])
-        self.dataset_scenario = str(argv[2])
+        self.dataset_scenario = str(argv[2]).upper()
         self.parse_dataset_args()
         self.experiment_info = str(argv[3]).upper()
         self.experiment = configuration[self.experiment_info]
@@ -38,9 +36,9 @@ class Config(DefaultConfig):
         self.parse_experiment_args()
         self.parse_extractor()
         self.parse_detector()
-        # except Exception as ex:
-        #     #print(ex)
-        #     pass
+
+        print(f'Running experiment {self.name} on image sequence v{self.dataset_version} '
+              f'with the {"UnderWater" if self.dataset_scenario == "UW" else "GroundTruth"} scenario')
 
     def parse_lk_params(self, lk_parmas_dict):
         params = {} if lk_parmas_dict is None else lk_parmas_dict

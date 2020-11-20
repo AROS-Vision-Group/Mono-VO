@@ -48,6 +48,9 @@ class ShiTomasiDetector(DetectorDescriptorInterface):
 
 		return self.des_extractor.get_descriptors(frame, kp)
 
+	def __str__(self):
+		return "Shi-Tomasi"
+
 
 class FAST_Detector(DetectorDescriptorInterface):
 	def __init__(self, des_extractor=None, **params):
@@ -65,6 +68,9 @@ class FAST_Detector(DetectorDescriptorInterface):
 
 		return self.des_extractor.get_descriptors(frame, kp)
 
+	def __str__(self):
+		return "FAST"
+
 
 class CenSurE_Detector(DetectorDescriptorInterface):
 	def __init__(self, des_extractor=None, **params):
@@ -81,6 +87,9 @@ class CenSurE_Detector(DetectorDescriptorInterface):
 			raise NotImplementedError("No descriptor extractor specified.")
 
 		return self.des_extractor.get_descriptors(frame, kp)
+
+	def __str__(self):
+		return "CenSurE"
 
 
 class SIFT(DetectorDescriptorInterface):
@@ -104,6 +113,9 @@ class SIFT(DetectorDescriptorInterface):
 
 		return self.des_extractor.get_descriptors(frame, kp)
 
+	def __str__(self):
+		return "SIFT"
+
 
 class SURF(DetectorDescriptorInterface):
 	def __init__(self, des_extractor=None, as_extractor=False, **params):
@@ -125,6 +137,9 @@ class SURF(DetectorDescriptorInterface):
 				return kp, self.des
 
 		return self.des_extractor.get_descriptors(frame, kp)
+
+	def __str__(self):
+		return "SURF"
 
 
 class ORB(DetectorDescriptorInterface):
@@ -148,6 +163,9 @@ class ORB(DetectorDescriptorInterface):
 
 		return self.des_extractor.get_descriptors(frame, kp)
 
+	def __str__(self):
+		return "ORB"
+
 
 class AKAZE(DetectorDescriptorInterface):
 	def __init__(self, des_extractor=None, as_extractor=False, **params):
@@ -170,6 +188,9 @@ class AKAZE(DetectorDescriptorInterface):
 
 		return self.des_extractor.get_descriptors(frame, kp)
 
+	def __str__(self):
+		return "AKAZE"
+
 
 class BRIEF_Extractor(DetectorDescriptorInterface):
 	def __init__(self, **params):
@@ -179,4 +200,7 @@ class BRIEF_Extractor(DetectorDescriptorInterface):
 	def get_descriptors(self, frame, kp):
 		kp, des = self.des_extractor.compute(frame, kp)
 		return kp, des
+
+	def __str__(self):
+		return "BRIEF"
 
