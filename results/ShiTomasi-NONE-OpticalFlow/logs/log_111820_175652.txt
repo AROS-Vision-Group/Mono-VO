@@ -1,8 +1,0 @@
-[INFO ] 2020-11-18 17:57:07,659 
-Experiment:	ShiTomasi-NONE-OpticalFlow
-Absolute Trajectory Error(ATE)[m]:	0.03709658045215484
-Absolute Orientation Error(AOE)[deg]:	4.513591590094208
-Relative Trajectory Error(RTE)[m]:	0.002111043832636784
-Relative Rotation Error(RRE)[deg]:	0.126418189154209
-RANSAC inlier ratio:	0.9677685281078634
-Runtime:	0.023980163203345405
