@@ -1,11 +1,11 @@
 import json
 import numpy as np
 import utils
+from glob import glob
 
-
-def prepare_ground_truth(filepath):
-    with open(filepath, 'r') as f:
-        with open('data/images_v4/ground_truth/transformed_ground_truth_v4.txt', 'w') as out:
+def prepare_ground_truth(filepath, outpath):
+    with open(glob(filepath)[0], 'r') as f:
+        with open(outpath, 'w') as out:
             d = json.load(f)
             t_inv_matrix = np.array(d["origin_transformation_mtx"])
             for data in d["Camera"]:
@@ -42,6 +42,9 @@ def flip_y_and_z_axis(R):
 
 
 if __name__ == '__main__':
-    filepath = 'data/images_v4/ground_truth/20201119_SEQ04_poses.json'
+    from sys import argv
+    version_string = f'v{argv[1]}'
+    filepath = f"data/images_{version_string}/*.json"
+    outpath = f"data/images_{version_string}/annotations_poses_{version_string}.txt"
 
-    prepare_ground_truth(filepath)
+    prepare_ground_truth(filepath, outpath)

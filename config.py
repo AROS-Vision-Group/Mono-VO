@@ -114,7 +114,7 @@ class Config(DefaultConfig):
         assert int(self.dataset_version) in range(1, 5), f"Version must be one of {range(1, 5)} but was {self.dataset_version}"
         version_string = f'v{self.dataset_version}'
         scenario_string = "eevee" if self.dataset_scenario == 'UW' else 'ground_truth'
-        self.annotations = f'./data/images_{version_string}/{scenario_string}/transformed_{scenario_string}_{version_string}.txt'
+        self.annotations = f'./data/images_{version_string}/annotations_poses_{version_string}.txt'
         self.images = f'./data/images_{version_string}/{scenario_string}/renders_compressed/*.jpg'
 
 
