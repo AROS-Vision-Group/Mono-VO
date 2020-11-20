@@ -1,6 +1,6 @@
 DEFAULTS: &defaults
-  ANNOTATIONS: !!python/str './data/images_v1/eevee/transformed_eevee_v1.txt'
-  IMAGES: !!python/str 'data/images_v1/eevee/renders_compressed/*.jpg'
+  ANNOTATIONS: !!python/str './data/images_v1/ground_truth/transformed_ground_truth_v1.txt'
+  IMAGES: !!python/str 'data/images_v1/ground_truth/renders_compressed/*.jpg'
   W: !!python/int 1920
   H: !!python/int 1080
   PIN_HOLE_PARAMS:
@@ -70,122 +70,265 @@ FLANN_PARAMS:
     search_params:
       checks: !!python/int 50
 
-EXPERIMENT_0:
-  name: !!python/str 'ShiTomasi-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'SHI-TOMASI'
+
+# Below we list our experiments.
+# For appearance-based tracking we use optical flow, and only need to specify the detector method
+# For descriptor-based tracking we use FLANN; and must specify detector and descriptor method
+
+# Experiments are specified as follow:
+# 1) For appearance-based: AB_{DetectorMethod}
+# 2) For descriptor-based: DB_{DetectorMethod}_{ExtractorMethod}
+
+# ---------------------- APPEARANCE-BASED ----------------------
+# ----- SHI Detector ------
+AB_SHI:
   detector_params: *shi-tomasi
-  extractor: !!python/none None
-  extractor_params: !!python/none None
-  lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 1200
-  toggle_morphology: !!python/bool True
-
-EXPERIMENT_1:
-  name: !!python/str 'FAST-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'FAST'
-  detector_params: *fast
-  extractor: !!python/none None
-  extractor_params: !!python/none None
-  lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 1200
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_2:
-  name: !!python/str 'SIFT-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'SIFT'
-  detector_params: *sift
-  extractor: !!python/none None
-  extractor_params: !!python/none None
-  lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 1600
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_3:
-  name: !!python/str 'ORB-BRIEF-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'ORB'
-  detector_params: *orb
-  extractor: !!python/str 'BRIEF'
-  extractor_params: *brief
-  lk_params: !!python/none None
-  flann_params: *flann-not-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool True
-
-EXPERIMENT_4:
-  name: !!python/str 'ORB-SIFT-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'ORB'
-  detector_params: *orb
-  extractor: !!python/str 'SIFT'
-  extractor_params: !!python/none None
-  lk_params: !!python/none None
-  flann_params: *flann-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_5:
-  name: !!python/str 'SIFT-SIFT-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'SIFT'
-  detector_params: !!python/none None
-  extractor: !!python/str 'SIFT'
-  extractor_params: !!python/none None
-  lk_params: !!python/none None
-  flann_params: *flann-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_6:
-  name: !!python/str 'SIFT-BRIEF-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'SIFT'
-  detector_params: !!python/none None
-  extractor: !!python/str 'BRIEF'
-  extractor_params: !!python/none None
-  lk_params: !!python/none None
-  flann_params: *flann-not-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_7:
-  name: !!python/str 'AKAZE-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'AKAZE'
-  detector_params: *akaze
-  extractor:
   extractor_params:
   lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 800
-  toggle_morphology: !!python/bool True
+  flann_params:
+  k_min_features: !!python/int 600
+  toggle_morphology: !!python/bool False
 
-EXPERIMENT_8:
-  name: !!python/str 'ORB-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'ORB'
-  detector_params: *orb
-  extractor: !!python/none None
-  extractor_params: !!python/none None
+# ----- FAST Detector ------
+AB_FAST:
+  detector_params: *fast
+  extractor_params:
   lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 1200
-  toggle_morphology: !!python/bool True
+  flann_params:
+  k_min_features: !!python/int 600
+  toggle_morphology: !!python/bool False
 
-EXPERIMENT_9:
-  name: !!python/str 'CENSURE-BRIEF-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'CENSURE'
+# ----- SIFT Detector ------
+AB_SIFT:
+  detector_params: *sift
+  extractor_params:
+  lk_params: *lk
+  flann_params:
+  k_min_features: !!python/int 600
+  toggle_morphology: !!python/bool False
+
+# ----- CENSURE Detector ------
+AB_CENSURE:
   detector_params: *censure
-  extractor: !!python/str 'BRIEF'
-  extractor_params: *brief
-  lk_params: !!python/none None
+  extractor_params:
+  lk_params: *lk
+  flann_params:
+  k_min_features: !!python/int 600
+  toggle_morphology: !!python/bool False
+
+# ----- ORB Detector ------
+AB_ORB:
+  detector_params: *orb
+  extractor_params:
+  lk_params: *lk
+  flann_params:
+  k_min_features: !!python/int 600
+  toggle_morphology: !!python/bool False
+
+# ----- AKAZE Detector ------
+AB_AKAZE:
+  detector_params: *akaze
+  extractor_params:
+  lk_params: *lk
+  flann_params:
+  k_min_features: !!python/int 600
+  toggle_morphology: !!python/bool False
+
+# ---------------------- DESCRIPTOR-BASED ----------------------
+# ----- SHI Detector ------
+DB_SHI_SIFT:
+  detector_params: *shi-tomasi
+  extractor_params: *sift
+  lk_params:
+  flann_params: *flann-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_SHI_ORB:
+  detector_params: *shi-tomasi
+  extractor_params: *orb
+  lk_params:
   flann_params: *flann-not-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool True
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_SHI_AKAZE:
+  detector_params: *shi-tomasi
+  extractor_params: *akaze
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_SHI_BRIEF:
+  detector_params: *shi-tomasi
+  extractor_params: *brief
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+# ----- FAST Detector ------
+DB_FAST_SIFT:
+  detector_params: *fast
+  extractor_params: *sift
+  lk_params:
+  flann_params: *flann-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_FAST_ORB:
+  detector_params: *fast
+  extractor_params: *orb
+  lk_params:
+  flann_params: *flann-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_FAST_AKAZE:
+  detector_params: *fast
+  extractor_params: *akaze
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_FAST_BRIEF:
+  detector_params: *fast
+  extractor_params: *brief
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+# ----- SIFT Detector ------
+DB_SIFT_SIFT:
+  detector_params: *sift
+  extractor_params: *sift
+  lk_params:
+  flann_params: *flann-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_SIFT_ORB:
+  detector_params: *sift
+  extractor_params: *orb
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_SIFT_AKAZE:
+  detector_params: *sift
+  extractor_params: *akaze
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_SIFT_BRIEF:
+  detector_params: *sift
+  extractor_params: *brief
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+# ----- CENSURE Detector ------
+DB_CENSURE_SIFT:
+  detector_params: *censure
+  extractor_params: *sift
+  lk_params:
+  flann_params: *flann-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_CENSURE_ORB:
+  detector_params: *censure
+  extractor_params: *orb
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_CENSURE_AKAZE:
+  detector_params: *censure
+  extractor_params: *akaze
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_CENSURE_BRIEF:
+  detector_params: *censure
+  extractor_params: *brief
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+# ----- ORB Detector ------
+DB_ORB_SIFT:
+  detector_params: *orb
+  extractor_params: *sift
+  lk_params:
+  flann_params: *flann-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_ORB_ORB:
+  detector_params: *orb
+  extractor_params: *orb
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_ORB_AKAZE:
+  detector_params: *orb
+  extractor_params: *akaze
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_ORB_BRIEF:
+  detector_params: *orb
+  extractor_params: *brief
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+# ----- AKAZE Detector ------
+DB_AKAZE_SIFT:
+  detector_params: *akaze
+  extractor_params: *sift
+  lk_params:
+  flann_params: *flann-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_AKAZE_ORB:
+  detector_params: *akaze
+  extractor_params: *orb
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_AKAZE_AKAZE:
+  detector_params: *akaze
+  extractor_params: *akaze
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
+
+DB_AKAZE_BRIEF:
+  detector_params: *akaze
+  extractor_params: *brief
+  lk_params:
+  flann_params: *flann-not-sift
+  k_min_features:
+  toggle_morphology: !!python/bool False
