@@ -190,21 +190,18 @@ class Eval:
         result['ate'] = ate
 
         # Absolute Orientation Error (AOE)
-        aoe = np.mean(rot_errors) #* 180 / np.pi
+        aoe = np.mean(rot_errors)
         result['aoe'] = aoe
 
         # ---- Relative Errors ----
         rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
-        #rel_rot_errors *= 180 / np.pi       # To get degrees
-        #rel_trans_errors *= 180 / np.pi
 
         # Relative Trajectory Error (RTE)
         rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
         result['rte'] = rte
 
         # Relative Rotation Error (RRE)
-        # rre = np.sqrt(np.mean(rel_rot_errors)) * 180 / np.pi
-        rre = np.mean(rel_rot_errors)# * 180 / np.pi
+        rre = np.mean(rel_rot_errors)
         result['rre'] = rre
 
         # ---- Yaw, Pitch, Roll ----
