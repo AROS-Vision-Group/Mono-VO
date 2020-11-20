@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+from sys import argv
 import yaml
 import utils
 from eval import Eval
@@ -14,7 +15,6 @@ from utils import preprocess_images
 def run(configuration: dict):
 	# Read from ground_truth_config.yaml
 	config = Config(configuration)
-	print(config.name)
 	H, W = config.H, config.W
 	pin_hole_params = config.pin_hole_params
 	image_path = config.images
@@ -41,5 +41,8 @@ def run(configuration: dict):
 
 
 if __name__ == '__main__':
-	cfg = yaml.load(open("eevee_config.yaml"), Loader=yaml.Loader)
+	scenario = str(argv[2]).upper()
+	assert scenario == 'UW' or scenario == 'GT', f"Scenario must be UW or GT, but received {scenario}"
+	config_path = "eevee_config.yaml" if scenario == 'UW' else 'ground_truth_config.yaml'
+	cfg = yaml.load(open(config_path), Loader=yaml.Loader)
 	run(cfg)

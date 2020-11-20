@@ -1,6 +1,4 @@
 DEFAULTS: &defaults
-  ANNOTATIONS: !!python/str './data/images_v1/ground_truth/transformed_ground_truth_v1.txt'
-  IMAGES: !!python/str 'data/images_v1/ground_truth/renders_compressed/*.jpg'
   W: !!python/int 1920
   H: !!python/int 1080
   PIN_HOLE_PARAMS:
@@ -86,7 +84,7 @@ AB_SHI:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 # ----- FAST Detector ------
@@ -95,7 +93,7 @@ AB_FAST:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 # ----- SIFT Detector ------
@@ -104,7 +102,7 @@ AB_SIFT:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 # ----- CENSURE Detector ------
@@ -113,7 +111,7 @@ AB_CENSURE:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 # ----- ORB Detector ------
@@ -122,7 +120,7 @@ AB_ORB:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 # ----- AKAZE Detector ------
@@ -131,7 +129,7 @@ AB_AKAZE:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 # ---------------------- DESCRIPTOR-BASED ----------------------

@@ -36,7 +36,6 @@ class DetectorDescriptorInterface:
 class ShiTomasiDetector(DetectorDescriptorInterface):
 	def __init__(self, des_extractor=None, **params):
 		super().__init__(des_extractor, as_extractor=False)
-		print(params)
 		self.detector = cv2.GFTTDetector_create(**params)
 
 	def get_keypoints(self, frame):
@@ -58,6 +57,7 @@ class FAST_Detector(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp = self.detector.detect(frame)
+		print(len(kp))
 		return kp
 
 	def get_descriptors(self, frame, kp):
@@ -74,6 +74,7 @@ class CenSurE_Detector(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp = self.detector.detect(frame, None)
+		print(len(kp))
 		return kp
 
 	def get_descriptors(self, frame, kp):
@@ -90,6 +91,7 @@ class SIFT(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
+		print(len(kp))
 		self.des = des
 		return kp
 
@@ -111,6 +113,7 @@ class SURF(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
+		print(len(kp))
 		self.des = des
 		return kp
 
@@ -132,6 +135,7 @@ class ORB(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
+		print(len(kp))
 		self.des = des
 		return kp
 
@@ -153,7 +157,7 @@ class AKAZE(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
-		#kp, des = utils.KDT_NMS(kp, des, r=35)
+		print(len(kp))
 		self.des = des
 		return kp
 

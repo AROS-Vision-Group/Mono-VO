@@ -9,8 +9,11 @@ class DefaultConfig:
         self.W = defaults["W"]
         self.H = defaults["H"]
         self.pin_hole_params = defaults["PIN_HOLE_PARAMS"]
-        self.images = defaults["IMAGES"]
-        self.annotations = defaults["ANNOTATIONS"]
+        self.images = None
+        self.annotations = None
+        self.detector = None
+        self.extractor = None
+        self.correspondence_method = None
 
 
 class Config(DefaultConfig):
@@ -18,22 +21,26 @@ class Config(DefaultConfig):
         super().__init__(configuration)
         self.defaults = configuration["DEFAULTS"]
 
-        try:
-            self.experiment_info = str(argv[1]).upper()
-            self.experiment = configuration[self.experiment_info]
-            self.name = self.experiment_info
-            self.toggle_morphology = self.experiment["toggle_morphology"]
-            self.detector_params = self.experiment["detector_params"]
-            self.extractor_params = self.experiment["extractor_params"]
-            self.k_min_features = self.experiment["k_min_features"]
-            self.flann_params = self.experiment["flann_params"]
-            self.k_min_features = self.experiment["k_min_features"]
-            self.parse_lk_params(self.experiment["lk_params"])
-            self.parse_experiment_args()
-            self.parse_detector(self.detector)
-            self.parse_extractor(self.extractor)
-        except Exception as ex:
-            pass
+
+        self.dataset_version = str(argv[1])
+        self.dataset_scenario = str(argv[2])
+        self.parse_dataset_args()
+        self.experiment_info = str(argv[3]).upper()
+        self.experiment = configuration[self.experiment_info]
+        self.name = self.experiment_info
+        self.toggle_morphology = self.experiment["toggle_morphology"]
+        self.detector_params = self.experiment["detector_params"]
+        self.extractor_params = self.experiment["extractor_params"]
+        self.k_min_features = self.experiment["k_min_features"]
+        self.flann_params = self.experiment["flann_params"]
+        self.k_min_features = self.experiment["k_min_features"]
+        self.parse_lk_params(self.experiment["lk_params"])
+        self.parse_experiment_args()
+        self.parse_extractor()
+        self.parse_detector()
+        # except Exception as ex:
+        #     #print(ex)
+        #     pass
 
     def parse_lk_params(self, lk_parmas_dict):
         params = {} if lk_parmas_dict is None else lk_parmas_dict
@@ -49,9 +56,9 @@ class Config(DefaultConfig):
         except Exception as ex:
             pass
 
-    def parse_detector(self, detector_string):
+    def parse_detector(self):
         params = {} if self.detector_params is None else self.detector_params
-
+        detector_string = self.detector
         if detector_string.upper() == "FAST":
             self.detector = detector.FAST_Detector(**params)
         elif detector_string.upper() == "CENSURE":
@@ -69,9 +76,13 @@ class Config(DefaultConfig):
         else:
             raise ModuleNotFoundError(f"No detector <{detector_string}> found.")
 
-    def parse_extractor(self, extractor_string):
+    def parse_extractor(self):
+        if self.extractor is None:
+            return
+
+        extractor_string = self.extractor
         as_extractor = False
-        if self.experiment["detector"] != extractor_string:
+        if self.detector != extractor_string:
             as_extractor = True
 
         params = {} if self.extractor_params is None else self.extractor_params
@@ -98,3 +109,14 @@ class Config(DefaultConfig):
         elif len(INFO) == 3:
             self.detector = INFO[1]
             self.extractor = INFO[2]
+
+    def parse_dataset_args(self):
+        assert int(self.dataset_version) in range(1, 5), f"Version must be one of {range(1, 5)} but was {self.dataset_version}"
+        version_string = f'v{self.dataset_version}'
+        scenario_string = "eevee" if self.dataset_scenario == 'UW' else 'ground_truth'
+        self.annotations = f'./data/images_{version_string}/{scenario_string}/transformed_{scenario_string}_{version_string}.txt'
+        self.images = f'./data/images_{version_string}/{scenario_string}/renders_compressed/*.jpg'
+
+
+# ANNOTATIONS: !!python/str './data/images_v1/ground_truth/transformed_ground_truth_v1.txt'
+# IMAGES: !!python/str 'data/images_v1/ground_truth/renders_compressed/*.jpg'
