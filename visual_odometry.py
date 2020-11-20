@@ -60,6 +60,9 @@ class VisualOdometry:
             self.annotations = f.readlines()
 
     def get_absolute_scale(self, frame_id):
+        """ Gets absolute scale from ground truth data, in order to properly compare estimated with ground truth.
+        Also, ground truth position and rotation is extracted
+        """
         xi, yi, zi = 3, 7, 11
         ss = self.annotations[frame_id - 1].strip().split()
         x_prev = float(ss[xi])
@@ -84,7 +87,7 @@ class VisualOdometry:
         Triangulate 3-D points X_(k-1) and X_k from current and previous frame to get relative scale
         :return: relative scale of translation between previous and current frame
         """
-        raise NotImplementedError("Relative Scale Method not implemted yet.")
+        raise NotImplementedError("Relative Scale Method not implemented yet.")
 
     def process_initial_frame(self):
         self.prev_points = self.detector.get_keypoints(self.cur_frame)
