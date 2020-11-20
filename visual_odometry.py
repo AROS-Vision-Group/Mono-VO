@@ -51,9 +51,6 @@ class VisualOdometry:
         self.correspondence_method = config.correspondence_method
         self.k_min_features = config.k_min_features
 
-        #self.detector = cv2.SIFT_create()
-        #self.detector.set_ex
-
         if self.correspondence_method == 'tracking':
             self.point_corr_computer = OpticalFlowTracker(config.lk_params)
         else:
