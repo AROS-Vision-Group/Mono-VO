@@ -1,4 +1,4 @@
-DEFAULTS: &defaults
+DEFAULTS:
   W: !!python/int 1920
   H: !!python/int 1080
   PIN_HOLE_PARAMS:
