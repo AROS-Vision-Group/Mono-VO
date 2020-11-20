@@ -114,7 +114,3 @@ class Config(DefaultConfig):
         scenario_string = "eevee" if self.dataset_scenario == 'UW' else 'ground_truth'
         self.annotations = f'./data/images_{version_string}/annotations_poses_{version_string}.txt'
         self.images = f'./data/images_{version_string}/{scenario_string}/renders_compressed/*.jpg'
-
-
-# ANNOTATIONS: !!python/str './data/images_v1/ground_truth/transformed_ground_truth_v1.txt'
-# IMAGES: !!python/str 'data/images_v1/ground_truth/renders_compressed/*.jpg'
