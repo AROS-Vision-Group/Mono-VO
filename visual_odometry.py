@@ -61,7 +61,7 @@ class VisualOdometry:
 
     def get_absolute_scale(self, frame_id):
         """ Gets absolute scale from ground truth data, in order to properly compare estimated with ground truth.
-        Also, ground truth position and rotation is extracted
+        Also, ground truth position and rotation is updated
         """
         xi, yi, zi = 3, 7, 11
         ss = self.annotations[frame_id - 1].strip().split()
