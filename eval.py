@@ -74,7 +74,7 @@ class Eval:
             pitch_list.append(pitch)
             roll_list.append(roll)
 
-        return np.array(yaw_list), np.array(pitch_list), np.array(roll_list)
+        return np.array(yaw_list) * 180/np.pi, np.array(pitch_list) * 180/np.pi, np.array(roll_list) * 180/np.pi
 
     @staticmethod
     def compute_ATE(gt_poses, vo_poses):
@@ -115,7 +115,7 @@ class Eval:
             trans_errors.append(self.translation_error(rel_error))
             rot_errors.append(self.rotation_error(rel_error))
 
-        return rot_errors, trans_errors
+        return np.array(rot_errors) * 180/np.pi, np.array(trans_errors)
 
     def compute_AOE(self, gt_poses, vo_poses):
         """ Compute Absolute Orientation Error
@@ -190,18 +190,21 @@ class Eval:
         result['ate'] = ate
 
         # Absolute Orientation Error (AOE)
-        aoe = np.mean(rot_errors) * 180 / np.pi
+        aoe = np.mean(rot_errors) #* 180 / np.pi
         result['aoe'] = aoe
 
         # ---- Relative Errors ----
         rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
+        #rel_rot_errors *= 180 / np.pi       # To get degrees
+        #rel_trans_errors *= 180 / np.pi
 
         # Relative Trajectory Error (RTE)
         rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
         result['rte'] = rte
 
         # Relative Rotation Error (RRE)
-        rre = np.sqrt(np.mean(np.array(rel_rot_errors) ** 2)) * 180 / np.pi
+        # rre = np.sqrt(np.mean(rel_rot_errors)) * 180 / np.pi
+        rre = np.mean(rel_rot_errors)# * 180 / np.pi
         result['rre'] = rre
 
         # ---- Yaw, Pitch, Roll ----
@@ -236,12 +239,12 @@ class Eval:
                                   title='Absolute Rotation Error',
                                   save_path=f'{plot_path}/rotation_error.png')
 
-        utils.plot_rotation_erros(rel_rot_errors,
-                                  title='Relative Rotation Error',
-                                  save_path=f'{plot_path}/rel_rotation_error.png')
         utils.plot_translation_error(rel_trans_errors,
                                      title="Relative Translation Error",
                                      save_path=f'{plot_path}/rel_translation_error.png')
+        utils.plot_rotation_erros(rel_rot_errors,
+                                  title='Relative Rotation Error',
+                                  save_path=f'{plot_path}/rel_rotation_error.png')
         utils.plot_inlier_ratio(self.inlier_ratios,
                                 save_path=f'{plot_path}/inlier_ratio.png')
 
