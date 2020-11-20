@@ -16,24 +16,22 @@ class DefaultConfig:
 class Config(DefaultConfig):
     def __init__(self, configuration):
         super().__init__(configuration)
-        self.detector = None
-        self.extractor = None
         self.defaults = configuration["DEFAULTS"]
-        self.experiment_index = str(argv[1]).upper()
-        self.experiment = configuration[self.experiment_index]
 
         try:
-            self.name = self.experiment['name']
-            self.correspondence_method = self.experiment["correspondence_method"]
+            self.experiment_info = str(argv[1]).upper()
+            self.experiment = configuration[self.experiment_info]
+            self.name = self.experiment_info
+            self.toggle_morphology = self.experiment["toggle_morphology"]
             self.detector_params = self.experiment["detector_params"]
             self.extractor_params = self.experiment["extractor_params"]
             self.k_min_features = self.experiment["k_min_features"]
             self.flann_params = self.experiment["flann_params"]
             self.k_min_features = self.experiment["k_min_features"]
-            self.toggle_morphology = self.experiment["toggle_morphology"]
             self.parse_lk_params(self.experiment["lk_params"])
-            self.parse_detector(self.experiment["detector"])
-            self.parse_extractor(self.experiment["extractor"])
+            self.parse_experiment_args()
+            self.parse_detector(self.detector)
+            self.parse_extractor(self.extractor)
         except Exception as ex:
             pass
 
@@ -66,7 +64,7 @@ class Config(DefaultConfig):
             self.detector = detector.ORB(**params)
         elif detector_string.upper() == "AKAZE":
             self.detector = detector.AKAZE(**params)
-        elif detector_string.upper() == "SHI-TOMASI":
+        elif detector_string.upper() == "SHI":
             self.detector = detector.ShiTomasiDetector(**params)
         else:
             raise ModuleNotFoundError(f"No detector <{detector_string}> found.")
@@ -90,3 +88,13 @@ class Config(DefaultConfig):
             self.extractor = detector.BRIEF_Extractor(**params)
         else:
             raise ModuleNotFoundError(f"No descriptor extractor <{extractor_string}> found.")
+
+    def parse_experiment_args(self):
+        INFO = self.experiment_info.split("_")
+        self.correspondence_method = 'tracking' if INFO[0].upper() == 'AB' else 'matching'
+        if len(INFO) == 2:
+            self.detector = INFO[1]
+            self.extractor = None
+        elif len(INFO) == 3:
+            self.detector = INFO[1]
+            self.extractor = INFO[2]

@@ -70,122 +70,12 @@ FLANN_PARAMS:
     search_params:
       checks: !!python/int 50
 
-EXPERIMENT_0:
-  name: !!python/str 'ShiTomasi-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'SHI-TOMASI'
+
+# Optical Flow (appearance-based)
+AB_SHI:
   detector_params: *shi-tomasi
-  extractor: !!python/none None
-  extractor_params: !!python/none None
-  lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 1200
-  toggle_morphology: !!python/bool True
-
-EXPERIMENT_1:
-  name: !!python/str 'FAST-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'FAST'
-  detector_params: *fast
-  extractor: !!python/none None
-  extractor_params: !!python/none None
-  lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 600
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_2:
-  name: !!python/str 'SIFT-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'SIFT'
-  detector_params: *sift
-  extractor: !!python/none None
-  extractor_params: !!python/none None
-  lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 1600
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_3:
-  name: !!python/str 'ORB-BRIEF-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'ORB'
-  detector_params: *orb
-  extractor: !!python/str 'BRIEF'
-  extractor_params: *brief
-  lk_params: !!python/none None
-  flann_params: *flann-not-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool True
-
-EXPERIMENT_4:
-  name: !!python/str 'ORB-SIFT-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'ORB'
-  detector_params: *orb
-  extractor: !!python/str 'SIFT'
-  extractor_params: !!python/none None
-  lk_params: !!python/none None
-  flann_params: *flann-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_5:
-  name: !!python/str 'SIFT-SIFT-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'SIFT'
-  detector_params: !!python/none None
-  extractor: !!python/str 'SIFT'
-  extractor_params: !!python/none None
-  lk_params: !!python/none None
-  flann_params: *flann-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_6:
-  name: !!python/str 'SIFT-BRIEF-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'SIFT'
-  detector_params: !!python/none None
-  extractor: !!python/str 'BRIEF'
-  extractor_params: !!python/none None
-  lk_params: !!python/none None
-  flann_params: *flann-not-sift
-  k_min_features: !!python/none None
-  toggle_morphology: !!python/bool False
-
-EXPERIMENT_7:
-  name: !!python/str 'AKAZE-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'AKAZE'
-  detector_params: *akaze
-  extractor:
   extractor_params:
   lk_params: *lk
-  flann_params: !!python/none None
-  k_min_features: !!python/int 800
-  toggle_morphology: !!python/bool True
-
-EXPERIMENT_8:
-  name: !!python/str 'ORB-NONE-OpticalFlow'
-  correspondence_method: !!python/str 'tracking'
-  detector: !!python/str 'ORB'
-  detector_params: *orb
-  extractor: !!python/none None
-  extractor_params: !!python/none None
-  lk_params: *lk
-  flann_params: !!python/none None
+  flann_params:
   k_min_features: !!python/int 1200
-  toggle_morphology: !!python/bool True
-
-EXPERIMENT_9:
-  name: !!python/str 'CENSURE-BRIEF-FLANN'
-  correspondence_method: !!python/str 'matching'
-  detector: !!python/str 'CENSURE'
-  detector_params: *censure
-  extractor: !!python/str 'BRIEF'
-  extractor_params: *brief
-  lk_params: !!python/none None
-  flann_params: *flann-not-sift
-  k_min_features: !!python/none None
   toggle_morphology: !!python/bool True
