@@ -327,12 +327,12 @@ def pretty_log(config, results):
         tracker_params = config.lk_params
 
     output =    f"\nExperiment:\t{results['name']}" \
-                f"\nAbsolute Trajectory Error(ATE)[m]:\t{results['ate']}" \
-                f"\nAbsolute Orientation Error(AOE)[deg]:\t{results['aoe']}" \
-                f"\nRelative Trajectory Error(RTE)[m]:\t{results['rte']}" \
-                f"\nRelative Rotation Error(RRE)[deg]:\t{results['rre']}" \
-                f"\nRANSAC inlier ratio:\t{results['inlier_ratio']}" \
-                f"\nRuntime:\t{results['runtime']}" \
+                f"\nAbsolute Trajectory Error(ATE)[m]:\t{results['ate']:.4f}" \
+                f"\nAbsolute Orientation Error(AOE)[deg]:\t{results['aoe']:.4f}" \
+                f"\nRelative Trajectory Error(RTE)[m]:\t{results['rte']:.4f}" \
+                f"\nRelative Rotation Error(RRE)[deg]:\t{results['rre']:.4f}" \
+                f"\nRANSAC inlier ratio:\t{results['inlier_ratio']:.4f}" \
+                f"\nRuntime:\t{results['runtime']:.4f}" \
                 f"\n\nParams for {config.detector} detector:" \
                 f"\n{config.detector_params}"
 

@@ -1,8 +1,0 @@
-[INFO ] 2020-11-18 17:55:00,417 
-Experiment:	FAST-NONE-OpticalFlow
-Absolute Trajectory Error(ATE)[m]:	0.0346519535069359
-Absolute Orientation Error(AOE)[deg]:	4.160857043233025
-Relative Trajectory Error(RTE)[m]:	0.0038779169329984176
-Relative Rotation Error(RRE)[deg]:	0.12478638281746793
-RANSAC inlier ratio:	0.948151104182123
-Runtime:	0.024315732055240208
