@@ -1,6 +1,6 @@
 DEFAULTS: &defaults
-  ANNOTATIONS: !!python/str './data/images_v2/eevee/transformed_eevee_v2.txt'
-  IMAGES: !!python/str 'data/images_v2/eevee/renders_compressed/*.jpg'
+  ANNOTATIONS: !!python/str './data/images_v1/eevee/transformed_eevee_v1.txt'
+  IMAGES: !!python/str 'data/images_v1/eevee/renders_compressed/*.jpg'
   W: !!python/int 1920
   H: !!python/int 1080
   PIN_HOLE_PARAMS:

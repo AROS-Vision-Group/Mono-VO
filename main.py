@@ -12,8 +12,9 @@ from utils import preprocess_images
 
 
 def run(configuration: dict):
-	# Read from config.yaml
+	# Read from ground_truth_config.yaml
 	config = Config(configuration)
+	print(config.name)
 	H, W = config.H, config.W
 	pin_hole_params = config.pin_hole_params
 	image_path = config.images
@@ -26,8 +27,8 @@ def run(configuration: dict):
 	vo_visualizer = VO_Visualizer(vo, W, H)
 
 	# Fetch and initialize preprocessing of images
-	orig_images = preprocess_images(image_path, default=True)
-	preprocessed_images = preprocess_images(image_path, morphology=config.toggle_morphology)
+	orig_images = preprocess_images(image_path, default=True)[:180]
+	preprocessed_images = preprocess_images(image_path, morphology=config.toggle_morphology)[:180]
 
 	# Run
 	for i, img in enumerate(preprocessed_images):
@@ -40,5 +41,5 @@ def run(configuration: dict):
 
 
 if __name__ == '__main__':
-	cfg = yaml.load(open("config.yaml"), Loader=yaml.Loader)
+	cfg = yaml.load(open("eevee_config.yaml"), Loader=yaml.Loader)
 	run(cfg)
