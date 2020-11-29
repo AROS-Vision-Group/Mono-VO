@@ -55,6 +55,13 @@ class Config(DefaultConfig):
             pass
 
     def parse_detector(self):
+        # If detector and descriptor is by same method, make detector same as extractor,
+        # and set extractor to itself (NONE)
+        if self.detector == self.extractor.__str__():
+            self.detector = self.extractor
+            self.extractor = None
+            return
+
         params = {} if self.detector_params is None else self.detector_params
         detector_string = self.detector
         if detector_string.upper() == "FAST":

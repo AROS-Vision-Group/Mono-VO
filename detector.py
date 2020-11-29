@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 
 class DetectorDescriptorInterface:
@@ -39,7 +40,6 @@ class ShiTomasiDetector(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp = self.detector.detect(frame)
-		print(len(kp))
 		return kp
 
 	def get_descriptors(self, frame, kp):
@@ -59,7 +59,6 @@ class FAST_Detector(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp = self.detector.detect(frame)
-		print(len(kp))
 		return kp
 
 	def get_descriptors(self, frame, kp):
@@ -79,7 +78,6 @@ class CenSurE_Detector(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp = self.detector.detect(frame, None)
-		print(len(kp))
 		return kp
 
 	def get_descriptors(self, frame, kp):
@@ -99,7 +97,6 @@ class SIFT(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
-		print(len(kp))
 		self.des = des
 		return kp
 
@@ -124,14 +121,13 @@ class SURF(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
-		print(len(kp))
 		self.des = des
 		return kp
 
 	def get_descriptors(self, frame, kp):
 		if self.des_extractor is None:
 			if self.as_extractor:
-				kp, des = self.detector.compute(frame, None)
+				kp, des = self.detector.compute(frame, kp)
 				return kp, des
 			else:
 				return kp, self.des
@@ -149,7 +145,6 @@ class ORB(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
-		print(len(kp))
 		self.des = des
 		return kp
 
@@ -174,7 +169,6 @@ class AKAZE(DetectorDescriptorInterface):
 
 	def get_keypoints(self, frame):
 		kp, des = self.detector.detectAndCompute(frame, None)
-		print(len(kp))
 		self.des = des
 		return kp
 
