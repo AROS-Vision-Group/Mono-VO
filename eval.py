@@ -46,7 +46,6 @@ class Eval:
         c = pose_error[2, 2]
         d = 0.5 * (a + b + c - 1.0)
         rot_error = np.arccos(max(min(d, 1.0), -1.0))
-        print(rot_error*180 / np.pi)
         return rot_error
 
     @staticmethod

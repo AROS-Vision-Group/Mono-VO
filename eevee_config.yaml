@@ -14,7 +14,7 @@ SHI_TOMASI_PARAMS: &shi-tomasi
   blockSize: !!python/int 10
 
 FAST_PARAMS: &fast
-  threshold: !!python/int 12
+  threshold: !!python/int 10
   nonmaxSuppression: !!python/bool True
 
 ORB_PARAMS: &orb
