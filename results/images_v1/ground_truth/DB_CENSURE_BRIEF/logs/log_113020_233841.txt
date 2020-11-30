@@ -1,0 +1,15 @@
+[INFO ] 2020-11-30 23:38:41,827 
+Experiment:	DB_CENSURE_BRIEF
+Absolute Trajectory Error(ATE)[m]:	0.2883
+Absolute Orientation Error(AOE)[deg]:	4.5887
+Relative Trajectory Error(RTE)[m]:	0.0122
+Relative Rotation Error(RRE)[deg]:	0.1661
+RANSAC inlier ratio:	0.9294
+Runtime:	0.0639
+
+Params for CenSurE detector:
+{'responseThreshold': 25}
+Params for BRIEF extractor: 
+{'use_orientation': True}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

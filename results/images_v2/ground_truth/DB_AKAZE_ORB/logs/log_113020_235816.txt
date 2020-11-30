@@ -1,0 +1,15 @@
+[INFO ] 2020-11-30 23:58:16,563 
+Experiment:	DB_AKAZE_ORB
+Absolute Trajectory Error(ATE)[m]:	0.0895
+Absolute Orientation Error(AOE)[deg]:	1.7254
+Relative Trajectory Error(RTE)[m]:	0.0032
+Relative Rotation Error(RRE)[deg]:	0.0939
+RANSAC inlier ratio:	0.9712
+Runtime:	0.2724
+
+Params for AKAZE detector:
+None
+Params for ORB extractor: 
+{'nfeatures': 1000, 'scaleFactor': 2.0, 'nlevels': 8, 'edgeThreshold': 3, 'firstLevel': 0, 'WTA_K': 2, 'scoreType': 1, 'patchSize': 31, 'fastThreshold': 10}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

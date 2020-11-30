@@ -1,0 +1,13 @@
+[INFO ] 2020-11-30 23:00:25,527 
+Experiment:	AB_AKAZE
+Absolute Trajectory Error(ATE)[m]:	0.0712
+Absolute Orientation Error(AOE)[deg]:	1.4793
+Relative Trajectory Error(RTE)[m]:	0.0170
+Relative Rotation Error(RRE)[deg]:	0.2668
+RANSAC inlier ratio:	0.9176
+Runtime:	0.0273
+
+Params for AKAZE detector:
+None
+Params for Lucas-Kanade Optical Flow:
+{'winSize': (21, 21), 'maxLevel': 6, 'criteria': (3, 30, 0.01), 'flags': 8, 'minEigThreshold': 0.0001}

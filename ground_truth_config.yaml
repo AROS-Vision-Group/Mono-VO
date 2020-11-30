@@ -8,9 +8,9 @@ DEFAULTS:
     cy: !!python/int 540
 
 SHI_TOMASI_PARAMS: &shi-tomasi
-  maxCorners: !!python/int 5000
-  qualityLevel: !!python/float 0.1
-  minDistance: !!python/int 10
+  maxCorners: !!python/int 3000
+  qualityLevel: !!python/float 0.005
+  minDistance: !!python/int 30
   blockSize: !!python/int 10
 
 FAST_PARAMS: &fast
@@ -18,31 +18,40 @@ FAST_PARAMS: &fast
   nonmaxSuppression: !!python/bool True
 
 ORB_PARAMS: &orb
-  nfeatures: !!python/int 5000
+  nfeatures: !!python/int 1000
+  scaleFactor: !!python/float 2
+  nlevels: !!python/int 8
+  edgeThreshold: !!python/int 3
+  firstLevel: !!python/int 0
+  WTA_K: !!python/int 2
+  scoreType: !!python/int 1 #ORB_FAST_SCORE = 1 | ORB_HARRIS_SCORE = 0
+  patchSize: !!python/int 31
+  fastThreshold: !!python/int 10
+
 
 BRIEF_PARAMS: &brief
   use_orientation: !!python/bool True
 
 SIFT_PARAMS: &sift
-  nfeatures: !!python/int 5000
+  nfeatures: !!python/int 1000
   nOctaveLayers: !!python/int 3
   contrastThreshold: !!python/float 0.04
-  edgeThreshold: !!python/int 10
+  edgeThreshold: !!python/int 30
   sigma: !!python/float 1.6
 
 CENSURE_PARAMS: &censure
-  maxSize: !!python/int 45
-  responseThreshold: !!python/int 30
-  lineThresholdProjected: !!python/int 10
-  lineThresholdBinarized: !!python/int 8
-  suppressNonmaxSize: !!python/int 5
+  #maxSize: !!python/int 100
+  responseThreshold: !!python/int 25
+  #lineThresholdProjected: !!python/int 10
+  #lineThresholdBinarized: !!python/int 8
+  #suppressNonmaxSize: !!python/int 5
 
 AKAZE_PARAMS: &akaze
 #  extended: !!python/bool False
 #  upright: !!python/bool False
-  threshold: !!python/float 0.05
-  nOctaves: !!python/int 3
-  nOctaveLayers: !!python/int 3
+  #threshold: !!python/float 0.05
+  #nOctaves: !!python/int 3
+  #nOctaveLayers: !!python/int 3
 #  diffusivity: !!python/int 1 # DIFF_PM_G2
 
 LK_PARAMS: &lk
@@ -84,7 +93,7 @@ AB_SHI:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 1200
+  k_min_features: !!python/int 600
   toggle_morphology: !!python/bool False
 
 # ----- FAST Detector ------
@@ -102,7 +111,7 @@ AB_SIFT:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 1200
+  k_min_features: !!python/int 1000
   toggle_morphology: !!python/bool False
 
 # ----- CENSURE Detector ------

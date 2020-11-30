@@ -1,0 +1,15 @@
+[INFO ] 2020-11-30 23:42:15,608 
+Experiment:	DB_ORB_SIFT
+Absolute Trajectory Error(ATE)[m]:	0.0906
+Absolute Orientation Error(AOE)[deg]:	2.0870
+Relative Trajectory Error(RTE)[m]:	0.0075
+Relative Rotation Error(RRE)[deg]:	0.2690
+RANSAC inlier ratio:	0.6289
+Runtime:	0.2728
+
+Params for ORB detector:
+{'nfeatures': 1000, 'scaleFactor': 2.0, 'nlevels': 8, 'edgeThreshold': 3, 'firstLevel': 0, 'WTA_K': 2, 'scoreType': 1, 'patchSize': 31, 'fastThreshold': 10}
+Params for SIFT extractor: 
+{'nfeatures': 1000, 'nOctaveLayers': 3, 'contrastThreshold': 0.04, 'edgeThreshold': 30, 'sigma': 1.6}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 0, 'trees': 5}, 'search_params': {'checks': 50}}

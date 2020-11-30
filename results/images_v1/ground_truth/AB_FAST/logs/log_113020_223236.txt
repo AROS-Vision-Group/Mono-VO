@@ -1,0 +1,13 @@
+[INFO ] 2020-11-30 22:32:36,804 
+Experiment:	AB_FAST
+Absolute Trajectory Error(ATE)[m]:	0.1667
+Absolute Orientation Error(AOE)[deg]:	4.8238
+Relative Trajectory Error(RTE)[m]:	0.0102
+Relative Rotation Error(RRE)[deg]:	0.0974
+RANSAC inlier ratio:	0.9869
+Runtime:	0.0356
+
+Params for FAST detector:
+{'threshold': 10, 'nonmaxSuppression': True}
+Params for Lucas-Kanade Optical Flow:
+{'winSize': (21, 21), 'maxLevel': 6, 'criteria': (3, 30, 0.01), 'flags': 8, 'minEigThreshold': 0.0001}

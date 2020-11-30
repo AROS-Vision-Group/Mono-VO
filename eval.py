@@ -203,13 +203,11 @@ class Eval:
         result['ate'] = ate
 
         # Absolute Orientation Error (AOE)
-        print(rot_errors)
         aoe = np.mean(rot_errors)
         result['aoe'] = aoe
 
         # ---- Relative Errors ----
         rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
-        print(np.sum(rel_rot_errors))
 
         # Relative Trajectory Error (RTE)
         rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))

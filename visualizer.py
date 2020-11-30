@@ -24,14 +24,14 @@ class VO_Visualizer:
 
 	def show(self, img, orig_img):
 		cv2.namedWindow('Snake Robot Camera', cv2.WINDOW_NORMAL)
-		cv2.resizeWindow('Snake Robot Camera', self.W, self.H // 2)
+		cv2.resizeWindow('Snake Robot Camera', self.W // 2, self.H // 2)
 
 		self.visualize_key_points(orig_img)
 
 		self.show_frame_nr(orig_img)
 
 		hstack = np.hstack((orig_img, img))
-		cv2.imshow('Snake Robot Camera', hstack)
+		cv2.imshow('Snake Robot Camera', orig_img)
 
 		self.visualize_2d_traj()
 		cv2.waitKey(1)
