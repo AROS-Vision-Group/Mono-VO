@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 19:14:02,232 
+Experiment:	DB_SIFT_BRIEF
+Absolute Trajectory Error(ATE)[m]:	0.2003
+Absolute Orientation Error(AOE)[deg]:	10.3900
+Relative Trajectory Error(RTE)[m]:	0.0088
+Relative Rotation Error(RRE)[deg]:	0.2658
+RANSAC inlier ratio:	0.9678
+Runtime:	0.4762
+
+Params for SIFT detector:
+{'nfeatures': 2000, 'nOctaveLayers': 1, 'contrastThreshold': 0.01}
+Params for BRIEF extractor: 
+{'use_orientation': True}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

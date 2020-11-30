@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 02:58:25,938 
+Experiment:	DB_FAST_SIFT
+Absolute Trajectory Error(ATE)[m]:	0.3758
+Absolute Orientation Error(AOE)[deg]:	7.5431
+Relative Trajectory Error(RTE)[m]:	0.0202
+Relative Rotation Error(RRE)[deg]:	0.7692
+RANSAC inlier ratio:	0.6847
+Runtime:	0.2143
+
+Params for FAST detector:
+{'threshold': 10, 'nonmaxSuppression': True}
+Params for SIFT extractor: 
+{'nfeatures': 5000, 'nOctaveLayers': 3, 'contrastThreshold': 0.4, 'edgeThreshold': 10, 'sigma': 1.6}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 0, 'trees': 5}, 'search_params': {'checks': 50}}

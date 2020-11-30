@@ -1,0 +1,13 @@
+[INFO ] 2020-11-29 18:46:43,161 
+Experiment:	DB_SIFT_SIFT
+Absolute Trajectory Error(ATE)[m]:	0.1336
+Absolute Orientation Error(AOE)[deg]:	8.4095
+Relative Trajectory Error(RTE)[m]:	0.0088
+Relative Rotation Error(RRE)[deg]:	0.2385
+RANSAC inlier ratio:	0.9719
+Runtime:	0.7931
+
+Params for SIFT detector:
+{'nfeatures': 3000, 'nOctaveLayers': 1, 'contrastThreshold': 0.01}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 0, 'trees': 5}, 'search_params': {'checks': 50}}

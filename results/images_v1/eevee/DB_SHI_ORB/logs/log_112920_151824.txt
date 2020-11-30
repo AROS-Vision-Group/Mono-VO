@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 15:18:24,873 
+Experiment:	DB_SHI_ORB
+Absolute Trajectory Error(ATE)[m]:	0.1595
+Absolute Orientation Error(AOE)[deg]:	7.2830
+Relative Trajectory Error(RTE)[m]:	0.0105
+Relative Rotation Error(RRE)[deg]:	0.2437
+RANSAC inlier ratio:	0.8313
+Runtime:	0.0540
+
+Params for Shi-Tomasi detector:
+{'maxCorners': 1000, 'qualityLevel': 0.005, 'minDistance': 30, 'blockSize': 10}
+Params for ORB extractor: 
+{'nfeatures': 5000, 'scaleFactor': 2.0, 'nlevels': 8, 'edgeThreshold': 5, 'firstLevel': 0, 'WTA_K': 2, 'scoreType': 1, 'patchSize': 31, 'fastThreshold': 10}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

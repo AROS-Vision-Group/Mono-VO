@@ -1,0 +1,12 @@
+[INFO ] 2020-11-20 16:52:16,583 
+Experiment:	FAST-NONE-OpticalFlow
+Absolute Trajectory Error(ATE)[m]:	nan
+Absolute Orientation Error(AOE)[deg]:	nan
+Relative Trajectory Error(RTE)[m]:	nan
+Relative Rotation Error(RRE)[deg]:	nan
+RANSAC inlier ratio:	nan
+Runtime:	nan
+Params for <detector.FAST_Detector object at 0x7fab33660bb0>
+{'threshold': 10, 'nonmaxSuppression': True}
+Params for LK:
+{'winSize': (21, 21), 'maxLevel': 6, 'criteria': (3, 30, 0.01), 'flags': 8, 'minEigThreshold': 0.0001}

@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 16:33:49,609 
+Experiment:	DB_FAST_BRIEF
+Absolute Trajectory Error(ATE)[m]:	0.4964
+Absolute Orientation Error(AOE)[deg]:	22.7198
+Relative Trajectory Error(RTE)[m]:	0.0164
+Relative Rotation Error(RRE)[deg]:	0.7854
+RANSAC inlier ratio:	0.8725
+Runtime:	0.2700
+
+Params for FAST detector:
+{'threshold': 10, 'nonmaxSuppression': True}
+Params for BRIEF extractor: 
+{'use_orientation': True}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

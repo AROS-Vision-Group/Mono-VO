@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 03:14:12,410 
+Experiment:	DB_FAST_ORB
+Absolute Trajectory Error(ATE)[m]:	0.2277
+Absolute Orientation Error(AOE)[deg]:	2.9785
+Relative Trajectory Error(RTE)[m]:	0.0149
+Relative Rotation Error(RRE)[deg]:	0.6202
+RANSAC inlier ratio:	0.7637
+Runtime:	0.0455
+
+Params for FAST detector:
+{'threshold': 10, 'nonmaxSuppression': True}
+Params for ORB extractor: 
+{'nfeatures': 5000, 'scaleFactor': 2.0, 'nlevels': 8, 'edgeThreshold': 10, 'firstLevel': 0, 'WTA_K': 2, 'scoreType': 1, 'patchSize': 31, 'fastThreshold': 30}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

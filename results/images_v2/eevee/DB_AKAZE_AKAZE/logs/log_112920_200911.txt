@@ -1,0 +1,13 @@
+[INFO ] 2020-11-29 20:09:11,024 
+Experiment:	DB_AKAZE_AKAZE
+Absolute Trajectory Error(ATE)[m]:	0.4559
+Absolute Orientation Error(AOE)[deg]:	5.9191
+Relative Trajectory Error(RTE)[m]:	0.0155
+Relative Rotation Error(RRE)[deg]:	0.6996
+RANSAC inlier ratio:	0.9523
+Runtime:	0.2680
+
+Params for AKAZE detector:
+{'threshold': 0.0007, 'nOctaves': 3}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

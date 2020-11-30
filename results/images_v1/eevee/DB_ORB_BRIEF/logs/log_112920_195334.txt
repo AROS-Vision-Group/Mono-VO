@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 19:53:34,706 
+Experiment:	DB_ORB_BRIEF
+Absolute Trajectory Error(ATE)[m]:	0.8690
+Absolute Orientation Error(AOE)[deg]:	34.1787
+Relative Trajectory Error(RTE)[m]:	0.0199
+Relative Rotation Error(RRE)[deg]:	1.0187
+RANSAC inlier ratio:	0.8513
+Runtime:	0.0797
+
+Params for ORB detector:
+{'nfeatures': 2500, 'scaleFactor': 2.0, 'nlevels': 8, 'edgeThreshold': 3, 'firstLevel': 0, 'WTA_K': 2, 'scoreType': 1, 'patchSize': 31, 'fastThreshold': 10}
+Params for BRIEF extractor: 
+{'use_orientation': True}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

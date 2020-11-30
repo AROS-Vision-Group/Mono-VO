@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 19:20:36,664 
+Experiment:	DB_CENSURE_SIFT
+Absolute Trajectory Error(ATE)[m]:	0.7853
+Absolute Orientation Error(AOE)[deg]:	29.7568
+Relative Trajectory Error(RTE)[m]:	0.0172
+Relative Rotation Error(RRE)[deg]:	0.8735
+RANSAC inlier ratio:	0.9223
+Runtime:	0.4743
+
+Params for CenSurE detector:
+{'maxSize': 15, 'responseThreshold': 10, 'lineThresholdProjected': 30, 'lineThresholdBinarized': 10, 'suppressNonmaxSize': 5}
+Params for SIFT extractor: 
+{'nfeatures': 2000, 'nOctaveLayers': 1, 'contrastThreshold': 0.01}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 0, 'trees': 5}, 'search_params': {'checks': 50}}

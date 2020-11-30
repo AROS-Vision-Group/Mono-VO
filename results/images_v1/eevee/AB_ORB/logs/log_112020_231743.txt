@@ -1,0 +1,13 @@
+[INFO ] 2020-11-20 23:17:43,497 
+Experiment:	AB_ORB
+Absolute Trajectory Error(ATE)[m]:	0.5518
+Absolute Orientation Error(AOE)[deg]:	22.2485
+Relative Trajectory Error(RTE)[m]:	0.9714
+Relative Rotation Error(RRE)[deg]:	58.5532
+RANSAC inlier ratio:	0.8895
+Runtime:	0.0454
+
+Params for ORB detector:
+{'nfeatures': 5000}
+Params for Lucas-Kanade Optical Flow:
+{'winSize': (21, 21), 'maxLevel': 6, 'criteria': (3, 30, 0.01), 'minEigThreshold': 0.0001}

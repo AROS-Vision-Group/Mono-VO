@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 20:01:19,197 
+Experiment:	DB_AKAZE_SIFT
+Absolute Trajectory Error(ATE)[m]:	0.4043
+Absolute Orientation Error(AOE)[deg]:	12.9371
+Relative Trajectory Error(RTE)[m]:	0.0174
+Relative Rotation Error(RRE)[deg]:	0.7503
+RANSAC inlier ratio:	0.9699
+Runtime:	0.5613
+
+Params for AKAZE detector:
+{'threshold': 0.0007, 'nOctaves': 3}
+Params for SIFT extractor: 
+{'nfeatures': 2000, 'nOctaveLayers': 1, 'contrastThreshold': 0.01}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 0, 'trees': 5}, 'search_params': {'checks': 50}}

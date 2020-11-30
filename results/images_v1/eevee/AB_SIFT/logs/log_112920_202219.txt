@@ -1,0 +1,13 @@
+[INFO ] 2020-11-29 20:22:19,540 
+Experiment:	AB_SIFT
+Absolute Trajectory Error(ATE)[m]:	0.1677
+Absolute Orientation Error(AOE)[deg]:	7.0856
+Relative Trajectory Error(RTE)[m]:	0.0096
+Relative Rotation Error(RRE)[deg]:	0.2491
+RANSAC inlier ratio:	0.8116
+Runtime:	0.1002
+
+Params for SIFT detector:
+{'nfeatures': 2000, 'nOctaveLayers': 1, 'contrastThreshold': 0.01}
+Params for Lucas-Kanade Optical Flow:
+{'winSize': (21, 21), 'maxLevel': 6, 'criteria': (3, 30, 0.01), 'minEigThreshold': 0.0001}

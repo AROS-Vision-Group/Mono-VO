@@ -1,0 +1,13 @@
+[INFO ] 2020-11-29 19:46:06,008 
+Experiment:	DB_ORB_ORB
+Absolute Trajectory Error(ATE)[m]:	0.8650
+Absolute Orientation Error(AOE)[deg]:	39.6009
+Relative Trajectory Error(RTE)[m]:	0.0201
+Relative Rotation Error(RRE)[deg]:	0.8952
+RANSAC inlier ratio:	0.7757
+Runtime:	0.0561
+
+Params for ORB detector:
+{'nfeatures': 2500, 'scaleFactor': 2.0, 'nlevels': 8, 'edgeThreshold': 3, 'firstLevel': 0, 'WTA_K': 2, 'scoreType': 1, 'patchSize': 31, 'fastThreshold': 10}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 6, 'table_number': 6, 'key_size': 12, 'multi_probe_level': 1}, 'search_params': {'checks': 50}}

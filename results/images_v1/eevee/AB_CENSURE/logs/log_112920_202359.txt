@@ -1,0 +1,13 @@
+[INFO ] 2020-11-29 20:23:59,608 
+Experiment:	AB_CENSURE
+Absolute Trajectory Error(ATE)[m]:	0.2993
+Absolute Orientation Error(AOE)[deg]:	11.3189
+Relative Trajectory Error(RTE)[m]:	0.0080
+Relative Rotation Error(RRE)[deg]:	0.2337
+RANSAC inlier ratio:	0.9060
+Runtime:	0.0577
+
+Params for CenSurE detector:
+{'maxSize': 15, 'responseThreshold': 5, 'lineThresholdProjected': 5, 'lineThresholdBinarized': 5, 'suppressNonmaxSize': 10}
+Params for Lucas-Kanade Optical Flow:
+{'winSize': (21, 21), 'maxLevel': 6, 'criteria': (3, 30, 0.01), 'minEigThreshold': 0.0001}

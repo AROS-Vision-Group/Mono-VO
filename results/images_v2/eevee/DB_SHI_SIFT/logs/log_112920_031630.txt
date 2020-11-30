@@ -1,0 +1,15 @@
+[INFO ] 2020-11-29 03:16:30,900 
+Experiment:	DB_SHI_SIFT
+Absolute Trajectory Error(ATE)[m]:	0.7612
+Absolute Orientation Error(AOE)[deg]:	20.1601
+Relative Trajectory Error(RTE)[m]:	0.0498
+Relative Rotation Error(RRE)[deg]:	1.2233
+RANSAC inlier ratio:	0.6189
+Runtime:	0.1134
+
+Params for Shi-Tomasi detector:
+{'maxCorners': 5000, 'qualityLevel': 0.01, 'minDistance': 50, 'blockSize': 10}
+Params for SIFT extractor: 
+{'nfeatures': 5000, 'nOctaveLayers': 3, 'contrastThreshold': 0.4, 'edgeThreshold': 10, 'sigma': 1.6}
+Params for FLANN matcher:
+{'index_params': {'algorithm': 0, 'trees': 5}, 'search_params': {'checks': 50}}
