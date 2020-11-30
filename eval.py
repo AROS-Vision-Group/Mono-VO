@@ -74,7 +74,7 @@ class Eval:
             pitch_list.append(pitch)
             roll_list.append(roll)
 
-        return np.array(yaw_list), np.array(pitch_list), np.array(roll_list)
+        return np.array(yaw_list) * 180/np.pi, np.array(pitch_list) * 180/np.pi, np.array(roll_list) * 180/np.pi
 
     @staticmethod
     def compute_ATE(gt_poses, vo_poses):
@@ -115,7 +115,7 @@ class Eval:
             trans_errors.append(self.translation_error(rel_error))
             rot_errors.append(self.rotation_error(rel_error))
 
-        return rot_errors, trans_errors
+        return np.array(rot_errors) * 180/np.pi, np.array(trans_errors)
 
     def compute_AOE(self, gt_poses, vo_poses):
         """ Compute Absolute Orientation Error
@@ -155,6 +155,19 @@ class Eval:
 
         return np.array(xs), np.array(ys), np.array(zs)
 
+    def compute_orientation_error(self, orientations, true_orientations):
+        """ Method that calculates the orientation error.
+        Fixes the fact that the angles turns negative after reaching 180 (170 -> 175 -> 180 -> -179 -> -175...)
+        So if estimated angle is 175 and the true angle is -175, the actual error is 10 degrees, and not 360 degrees
+        """
+        ori = orientations.copy()
+        true_ori = true_orientations.copy()
+        ori[ori < 0] *= -1
+        true_ori[true_ori < 0] *= -1
+
+        return ori - true_ori
+
+
     def update(self):
         self.add_pose()
         self.runtimes.append(self.vo.cur_runtime)
@@ -190,18 +203,20 @@ class Eval:
         result['ate'] = ate
 
         # Absolute Orientation Error (AOE)
-        aoe = np.mean(rot_errors) * 180 / np.pi
+        print(rot_errors)
+        aoe = np.mean(rot_errors)
         result['aoe'] = aoe
 
         # ---- Relative Errors ----
         rel_rot_errors, rel_trans_errors = self.compute_errors(rel_gt_poses, rel_vo_poses)
+        print(np.sum(rel_rot_errors))
 
         # Relative Trajectory Error (RTE)
         rte = np.sqrt(np.mean(np.array(rel_trans_errors) ** 2))
         result['rte'] = rte
 
         # Relative Rotation Error (RRE)
-        rre = np.sqrt(np.mean(np.array(rel_rot_errors) ** 2)) * 180 / np.pi
+        rre = np.mean(rel_rot_errors)
         result['rre'] = rre
 
         # ---- Yaw, Pitch, Roll ----
@@ -211,7 +226,10 @@ class Eval:
         rel_yaw, rel_pitch, rel_roll = self.compute_orientations(rel_vo_poses)
         true_rel_yaw, true_rel_pitch, true_rel_roll = self.compute_orientations(rel_gt_poses)
 
-        yaw_errors, pitch_errors, roll_errors = yaw - true_yaw, pitch - true_pitch, roll - true_roll
+        #yaw_errors, pitch_errors, roll_errors = yaw - true_yaw, pitch - true_pitch, roll - true_roll
+        yaw_errors = self.compute_orientation_error(yaw, true_yaw)
+        pitch_errors = self.compute_orientation_error(pitch, true_pitch)
+        roll_errors = self.compute_orientation_error(roll, true_roll)
 
         inlier_ratios = np.mean(self.inlier_ratios)
         result['inlier_ratio'] = inlier_ratios
@@ -236,12 +254,12 @@ class Eval:
                                   title='Absolute Rotation Error',
                                   save_path=f'{plot_path}/rotation_error.png')
 
-        utils.plot_rotation_erros(rel_rot_errors,
-                                  title='Relative Rotation Error',
-                                  save_path=f'{plot_path}/rel_rotation_error.png')
         utils.plot_translation_error(rel_trans_errors,
                                      title="Relative Translation Error",
                                      save_path=f'{plot_path}/rel_translation_error.png')
+        utils.plot_rotation_erros(rel_rot_errors,
+                                  title='Relative Rotation Error',
+                                  save_path=f'{plot_path}/rel_rotation_error.png')
         utils.plot_inlier_ratio(self.inlier_ratios,
                                 save_path=f'{plot_path}/inlier_ratio.png')
 

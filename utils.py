@@ -86,6 +86,7 @@ def plot_orientation_angle(theta_true, theta_hat, angle_name, title="", save_pat
     plt.plot([i for i in range(len(theta_hat))], theta_hat, label=f'{angle_name}_estimated', color='red')
     plt.title(title)
     plt.xlabel('frame #')
+    plt.ylabel('Orientation Angle [deg]')
     plt.legend()
     if save:
         plt.savefig(save_path, bbox_inches='tight')

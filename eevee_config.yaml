@@ -8,9 +8,9 @@ DEFAULTS:
     cy: !!python/int 540
 
 SHI_TOMASI_PARAMS: &shi-tomasi
-  maxCorners: !!python/int 5000
-  qualityLevel: !!python/float 0.1
-  minDistance: !!python/int 10
+  maxCorners: !!python/int 1000
+  qualityLevel: !!python/float 0.005
+  minDistance: !!python/int 30
   blockSize: !!python/int 10
 
 FAST_PARAMS: &fast
@@ -18,38 +18,46 @@ FAST_PARAMS: &fast
   nonmaxSuppression: !!python/bool True
 
 ORB_PARAMS: &orb
-  nfeatures: !!python/int 5000
+  nfeatures: !!python/int 2500
+  scaleFactor: !!python/float 2
+  nlevels: !!python/int 8
+  edgeThreshold: !!python/int 3
+  firstLevel: !!python/int 0
+  WTA_K: !!python/int 2
+  scoreType: !!python/int 1 #ORB_FAST_SCORE = 1 | ORB_HARRIS_SCORE = 0
+  patchSize: !!python/int 31
+  fastThreshold: !!python/int 10
 
 BRIEF_PARAMS: &brief
   use_orientation: !!python/bool True
 
 SIFT_PARAMS: &sift
-  nfeatures: !!python/int 5000
-  nOctaveLayers: !!python/int 3
-  contrastThreshold: !!python/float 0.04
-  edgeThreshold: !!python/int 10
-  sigma: !!python/float 1.6
+  nfeatures: !!python/int 2000
+  nOctaveLayers: !!python/int 1
+  contrastThreshold: !!python/float 0.01
+  #edgeThreshold: !!python/int 0
+  #sigma: !!python/float 0.7
 
 CENSURE_PARAMS: &censure
-  maxSize: !!python/int 45
-  responseThreshold: !!python/int 30
-  lineThresholdProjected: !!python/int 10
-  lineThresholdBinarized: !!python/int 8
-  suppressNonmaxSize: !!python/int 5
+  maxSize: !!python/int 15
+  responseThreshold: !!python/int 5
+  lineThresholdProjected: !!python/int 5
+  lineThresholdBinarized: !!python/int 5
+  suppressNonmaxSize: !!python/int 10
 
 AKAZE_PARAMS: &akaze
 #  extended: !!python/bool False
 #  upright: !!python/bool False
-  threshold: !!python/float 0.05
+  threshold: !!python/float 0.0007
   nOctaves: !!python/int 3
-  nOctaveLayers: !!python/int 3
+  #nOctaveLayers: !!python/int 3
 #  diffusivity: !!python/int 1 # DIFF_PM_G2
 
 LK_PARAMS: &lk
   winSize: !!python/tuple [21, 21]
   maxLevel: !!python/int 6
   criteria: !!python/tuple [2, 1, 30, 0.01]  # (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01)
-  flags: !!python/int 8                    # cv2.OPTFLOW_LK_GET_MIN_EIGENVALS
+  #flags: !!python/int 8                    # cv2.OPTFLOW_LK_GET_MIN_EIGENVALS
   minEigThreshold: !!python/float 0.0001 # 1e-4
 
 FLANN_PARAMS:
@@ -93,7 +101,7 @@ AB_FAST:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 2000
   toggle_morphology: !!python/bool False
 
 # ----- SIFT Detector ------
@@ -102,7 +110,7 @@ AB_SIFT:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 # ----- CENSURE Detector ------
@@ -111,7 +119,7 @@ AB_CENSURE:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 1200
   toggle_morphology: !!python/bool False
 
 # ----- ORB Detector ------
@@ -120,7 +128,7 @@ AB_ORB:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 2400
   toggle_morphology: !!python/bool False
 
 # ----- AKAZE Detector ------
@@ -129,7 +137,7 @@ AB_AKAZE:
   extractor_params:
   lk_params: *lk
   flann_params:
-  k_min_features: !!python/int 600
+  k_min_features: !!python/int 800
   toggle_morphology: !!python/bool False
 
 # ---------------------- DESCRIPTOR-BASED ----------------------
@@ -145,14 +153,6 @@ DB_SHI_SIFT:
 DB_SHI_ORB:
   detector_params: *shi-tomasi
   extractor_params: *orb
-  lk_params:
-  flann_params: *flann-not-sift
-  k_min_features:
-  toggle_morphology: !!python/bool False
-
-DB_SHI_AKAZE:
-  detector_params: *shi-tomasi
-  extractor_params: *akaze
   lk_params:
   flann_params: *flann-not-sift
   k_min_features:
@@ -179,14 +179,6 @@ DB_FAST_ORB:
   detector_params: *fast
   extractor_params: *orb
   lk_params:
-  flann_params: *flann-sift
-  k_min_features:
-  toggle_morphology: !!python/bool False
-
-DB_FAST_AKAZE:
-  detector_params: *fast
-  extractor_params: *akaze
-  lk_params:
   flann_params: *flann-not-sift
   k_min_features:
   toggle_morphology: !!python/bool False
@@ -205,22 +197,6 @@ DB_SIFT_SIFT:
   extractor_params: *sift
   lk_params:
   flann_params: *flann-sift
-  k_min_features:
-  toggle_morphology: !!python/bool False
-
-DB_SIFT_ORB:
-  detector_params: *sift
-  extractor_params: *orb
-  lk_params:
-  flann_params: *flann-not-sift
-  k_min_features:
-  toggle_morphology: !!python/bool False
-
-DB_SIFT_AKAZE:
-  detector_params: *sift
-  extractor_params: *akaze
-  lk_params:
-  flann_params: *flann-not-sift
   k_min_features:
   toggle_morphology: !!python/bool False
 
@@ -249,14 +225,6 @@ DB_CENSURE_ORB:
   k_min_features:
   toggle_morphology: !!python/bool False
 
-DB_CENSURE_AKAZE:
-  detector_params: *censure
-  extractor_params: *akaze
-  lk_params:
-  flann_params: *flann-not-sift
-  k_min_features:
-  toggle_morphology: !!python/bool False
-
 DB_CENSURE_BRIEF:
   detector_params: *censure
   extractor_params: *brief
@@ -277,14 +245,6 @@ DB_ORB_SIFT:
 DB_ORB_ORB:
   detector_params: *orb
   extractor_params: *orb
-  lk_params:
-  flann_params: *flann-not-sift
-  k_min_features:
-  toggle_morphology: !!python/bool False
-
-DB_ORB_AKAZE:
-  detector_params: *orb
-  extractor_params: *akaze
   lk_params:
   flann_params: *flann-not-sift
   k_min_features:
