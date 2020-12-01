@@ -38,7 +38,7 @@ class Config(DefaultConfig):
         self.parse_detector()
 
         print(f'Running experiment {self.name} on image sequence v{self.dataset_version} '
-              f'with the {"UnderWater" if self.dataset_scenario == "UW" else "GroundTruth"} scenario')
+              f'with the {"UnderWater" if self.dataset_scenario == "UW" else ("GroundTruth" if self.dataset_scenario == "GT" else "Cycles")} scenario')
 
     def parse_lk_params(self, lk_parmas_dict):
         params = {} if lk_parmas_dict is None else lk_parmas_dict
@@ -118,6 +118,18 @@ class Config(DefaultConfig):
     def parse_dataset_args(self):
         assert int(self.dataset_version) in range(1, 5), f"Version must be one of {range(1, 5)} but was {self.dataset_version}"
         version_string = f'v{self.dataset_version}'
-        scenario_string = "eevee" if self.dataset_scenario == 'UW' else 'ground_truth'
+        scenario_string = ""
+        if self.dataset_scenario == 'UW':
+            scenario_string = 'eevee'
+        if self.dataset_scenario == 'GT':
+            scenario_string = 'ground_truth'
+        if self.dataset_scenario == 'CYCLES':
+            scenario_string = 'cycles'
+
+        #scenario_string = "eevee" if self.dataset_scenario == 'UW' else 'ground_truth'
+
         self.annotations = f'./data/images_{version_string}/annotations_poses_{version_string}.txt'
         self.images = f'./data/images_{version_string}/{scenario_string}/renders_compressed/*.jpg'
+
+        #self.annotations = f'./data/images_v1/annotations_poses_v1.txt'
+        #self.images = f'./data/images_uw_denoized/*.jpg'

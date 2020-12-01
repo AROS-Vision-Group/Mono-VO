@@ -42,7 +42,12 @@ def run(configuration: dict):
 
 if __name__ == '__main__':
 	scenario = str(argv[2]).upper()
-	assert scenario == 'UW' or scenario == 'GT', f"Scenario must be UW or GT, but received {scenario}"
-	config_path = "eevee_config.yaml" if scenario == 'UW' else 'ground_truth_config.yaml'
+	assert scenario in ['UW', 'GT', 'CYCLES'], f"Scenario must be one of ['UW', 'GT', 'CYCLES'], but received {scenario}"
+	config_paths = {'UW': 'eevee_config.yaml',
+					'GT': 'ground_truth_config.yaml',
+					'CYCLES': 'cycles_config.yaml'}
+
+	#config_path = "eevee_config.yaml" if scenario == 'UW' else 'ground_truth_config.yaml'
+	config_path = config_paths[scenario]
 	cfg = yaml.load(open(config_path), Loader=yaml.Loader)
 	run(cfg)

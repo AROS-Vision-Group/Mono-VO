@@ -180,7 +180,15 @@ class Eval:
         result = {'name': self.name}
 
         # Create result directory
-        scenario = "ground_truth" if self.config.dataset_scenario == 'GT' else 'eevee'
+        scenario = ''
+        if self.config.dataset_scenario == 'UW':
+            scenario = 'eevee'
+        elif self.config.dataset_scenario == 'GT':
+            scenario = 'ground_truth'
+        elif self.config.dataset_scenario == 'CYCLES':
+            scenario = 'cycles'
+
+        #scenario = "ground_truth" if self.config.dataset_scenario == 'GT' else 'eevee'
         res_dir = f'./results/images_v{self.config.dataset_version}/{scenario}/{self.name}'
         plot_path = f'{res_dir}/plots/'
         log_path = f'{res_dir}/logs/'

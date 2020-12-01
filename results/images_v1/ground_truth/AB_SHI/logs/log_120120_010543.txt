@@ -1,0 +1,13 @@
+[INFO ] 2020-12-01 01:05:43,784 
+Experiment:	AB_SHI
+Absolute Trajectory Error(ATE)[m]:	1.5649
+Absolute Orientation Error(AOE)[deg]:	16.8843
+Relative Trajectory Error(RTE)[m]:	0.0091
+Relative Rotation Error(RRE)[deg]:	0.1531
+RANSAC inlier ratio:	0.9429
+Runtime:	0.0209
+
+Params for Shi-Tomasi detector:
+{'maxCorners': 3000, 'qualityLevel': 0.005, 'minDistance': 30, 'blockSize': 10}
+Params for Lucas-Kanade Optical Flow:
+{'winSize': (21, 21), 'maxLevel': 6, 'criteria': (3, 30, 0.01), 'flags': 8, 'minEigThreshold': 0.0001}
