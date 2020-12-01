@@ -2,7 +2,7 @@
 
 ### 2D Trajectory 
 ![2D Trajectory](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/gifs/camera_box_egomotion.gif?raw=true)  
-Red trajectory is estimated, and green is ground truth.
+> Red trajectory is estimated, and green is ground truth.
 
 ## Keypoints Detected
 ![Processing](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/gifs/processed_frame.gif?raw=true)
