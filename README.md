@@ -2,10 +2,11 @@
 
 ### 2D Trajectory 
 ![2D Trajectory](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/gifs/camera_box_egomotion.gif?raw=true)  
-Red trajectory is estimated, and green is ground truth.
+> Red trajectory is estimated, and green is ground truth.
 
-## Features Detected and Processed Frame
-![Processing](https://github.com/AROS-Vision-Group/visual-odometry-pipeline/blob/main/gifs/morphology_processed_frames.gif?raw=true)
+## Keypoints Detected
+![Processing](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/gifs/processed_frame.gif?raw=true)
+> In this example we are running Optical Flow (Pyramidal Lucas Kanade) with Shi-Tomasi for feature detection.
 
 ### 3D Trajectory
 ![3D Trajectory](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/results/images_v1/ground_truth/AB_SHI/plots/3d_traj.png) 
