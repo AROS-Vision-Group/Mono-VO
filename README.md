@@ -9,4 +9,4 @@
 > In this example we are running Optical Flow (Pyramidal Lucas Kanade) with Shi-Tomasi for feature detection.
 
 ### 3D Trajectory
-![3D Trajectory](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/results/images_v1/ground_truth/AB_SHI/plots/3d_traj.png) 
+![3D Trajectory](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/gifs/3d_traj.gif?raw=true) 
