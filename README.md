@@ -14,7 +14,7 @@ Optimal Scenario  |  Underwater Scenario
 
 
 ### Forward Sequence
-Optimal Scenario  |  Difficult Underwater Scenario
+Optimal Scenario  |  Underwater Scenario
 :----------------:|:--------------------:
 ![](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/gifs/traces_gt.gif?raw=true)  |  ![](https://github.com/AROS-Vision-Group/Mono-VO/blob/main/gifs/traces_cycles.gif?raw=true)
 
