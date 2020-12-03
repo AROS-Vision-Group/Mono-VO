@@ -58,7 +58,7 @@ def fill_in_latex_table(filepath, outpath, metric_index):
 
     with open(f"{outpath}/{get_metric_name(metric_index)}.txt", 'w') as out:
         out.write("\\begin{table}[ht!]")
-        out.write("\\centering")
+        out.write("\n\\centering")
         out.write("\n\\begin{tabular}{l|cccc}")
         out.write("\n                                & \multicolumn{4}{c}{\\textbf{Descriptor}} \\\\")
         out.write("\n\cline{2-5}")
@@ -69,6 +69,7 @@ def fill_in_latex_table(filepath, outpath, metric_index):
         out.write("\n\\textit{CenSurE}      " + f"   & {censure[0]}      & {censure[1]}     & {censure[2]}     &                  " + "\\\\")
         out.write("\n\\textit{ORB}          " + f"   & {orb[0]}          & {orb[1]}         & {orb[2]}         &                  " + "\\\\")
         out.write("\n\\textit{AKAZE}        " + f"   & {akaze[1]}        & {akaze[2]}       & {akaze[3]}       & {akaze[0]}       " + "\\\\")
+
         out.write("\n\end{tabular}")
         out.write("\n\end{table}")
 
