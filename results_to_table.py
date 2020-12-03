@@ -9,12 +9,12 @@ from pathlib import Path
 
 def get_metric_name(metric_index):
     metric_name_mapping = {
-        0: "ATE",
-        1: "AOE",
-        2: "RTE",
-        3: "RRE",
-        4: "RIR",
-        5: "Runtime"
+        0: "ATE",       # Absolute Trajectory Error(ATE)[m]
+        1: "ARE",       # Absolute Rotation Error(AOE)[deg]
+        2: "RTE",       # Relative Trajectory Error(RTE)[m]
+        3: "RRE",       # Relative Rotation Error(RRE)[deg]
+        4: "RIR",       # Ransac Inlier Ratio (RIR)
+        5: "Runtime"    # Runtime [seconds/frame]
     }
     return metric_name_mapping[metric_index]
 
@@ -64,10 +64,10 @@ def fill_in_latex_table(filepath, outpath, metric_index):
         out.write("\n\cline{2-5}")
         out.write("\n\\textbf{Detector}              & \\textit{BRIEF}    & \\textit{SIFT}  & \\textit{ORB}  & \\textit{AKAZE}      \\\\")
         out.write("\n\hline")
-        out.write("\n\\textit{SIFT}         " + f"   & {sift[0]}          & {sift[1]}       &                &                  " + "\\\\")
-        out.write("\n\\textit{Shi-Tomasi}   " + f"   & {shi[0]}           & {shi[2]}        & {shi[1]}       &                  " + "\\\\")
-        out.write("\n\\textit{CenSurE}      " + f"   & {censure[0]}       & {censure[2]}    & {censure[1]}   &                  " + "\\\\")
-        out.write("\n\\textit{ORB}          " + f"   & {orb[0]}           & {orb[2]}        & {orb[1]}       &                  " + "\\\\")
+        out.write("\n\\textit{SIFT}         " + f"   & {sift[0]}          & {sift[1]}       & -              & -                 " + "\\\\")
+        out.write("\n\\textit{Shi-Tomasi}   " + f"   & {shi[0]}           & {shi[2]}        & {shi[1]}       & -                 " + "\\\\")
+        out.write("\n\\textit{CenSurE}      " + f"   & {censure[0]}       & {censure[2]}    & {censure[1]}   & -                 " + "\\\\")
+        out.write("\n\\textit{ORB}          " + f"   & {orb[0]}           & {orb[2]}        & {orb[1]}       & -                 " + "\\\\")
         out.write("\n\\textit{AKAZE}        " + f"   & {akaze[1]}          & {akaze[3]}     & {akaze[2]}     & {akaze[0]}       " + "\\\\")
 
         out.write("\n\end{tabular}")
