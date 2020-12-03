@@ -32,7 +32,7 @@ def find_numerical_results_from_logs(filepath, outpath):
 
 
 def fill_in_latex_table(filepath, outpath, metric_index):
-    shi, fast, sift, censure, akaze, orb = [], [], [], [], [], []
+    shi, sift, censure, akaze, orb = [], [], [], [], []
     for experiment in (sorted(glob(f"{filepath}/**"))):
         filename = experiment.split("/")[-1]
         info = filename.rstrip(".txt").split("_")
@@ -47,8 +47,6 @@ def fill_in_latex_table(filepath, outpath, metric_index):
                     #print(res)
                     if detector.lower() == "shi":
                         shi.append(res.strip())
-                    elif detector.lower() == "fast":
-                        fast.append(res.strip())
                     elif detector.lower() == "sift":
                         sift.append(res.strip())
                     elif detector.lower() == "censure":
@@ -59,21 +57,20 @@ def fill_in_latex_table(filepath, outpath, metric_index):
                         orb.append(res.strip())
 
     with open(f"{outpath}/{get_metric_name(metric_index)}.txt", 'w') as out:
-        out.write("\n\\begin{table}[] ")
-        out.write("\n\\begin{tabular}{| c | c | c | c | c|}")
+        out.write("\\begin{table}[ht!]")
+        out.write("\\centering")
+        out.write("\n\\begin{tabular}{l|cccc}")
+        out.write("\n                                & \multicolumn{4}{c}{\\textbf{Descriptor}} \\\\")
+        out.write("\n\cline{2-5}")
+        out.write("\n\\textbf{Detector}                         & \\textit{BRIEF}   & \\textit{ORB}    & \\textit{SIFT}  & \\textit{AKAZE}      \\\\")
         out.write("\n\hline")
-        out.write("\n                                & \\textbf{AKAZE}  & \\textbf{BRIEF}   & \\textbf{ORB}    & \\textbf{SIFT}      \\\\ \hline ")
-        out.write("\n\\textbf{Shi - Tomasi} " + f"   & N/A              & {shi[0]}          & {shi[1]}         & {shi[2]}       " + "\\\\ \hline ")
-        out.write("\n\\textbf{FAST}         " + f"   & N/A              & N/A               & N/A              & N/A            " + "\\\\ \hline ")
-        out.write("\n\\textbf{SIFT}         " + f"   & N/A              & {sift[0]}         & N/A              & {sift[1]}      " + "\\\\ \hline ")
-        out.write("\n\\textbf{CenSurE}      " + f"   & N/A              & {censure[0]}      & {censure[1]}     & {censure[2]}   " + "\\\\ \hline ")
-        out.write("\n\\textbf{AKAZE}        " + f"   & {akaze[0]}       & {akaze[1]}        & {akaze[2]}       & {akaze[3]}     " + "\\\\ \hline ")
-        out.write("\n\\textbf{ORB}          " + f"   & N/A              & {orb[0]}          & {orb[1]}         & {orb[2]}       " + "\\\\ \hline ")
+        out.write("\n\\textit{SIFT}         " + f"   & {sift[0]}         &                  & {sift[1]}        &                  " + "\\\\")
+        out.write("\n\\textit{Shi-Tomasi}   " + f"   & {shi[0]}          & {shi[1]}         & {shi[2]}         &                  " + "\\\\")
+        out.write("\n\\textit{CenSurE}      " + f"   & {censure[0]}      & {censure[1]}     & {censure[2]}     &                  " + "\\\\")
+        out.write("\n\\textit{ORB}          " + f"   & {orb[0]}          & {orb[1]}         & {orb[2]}         &                  " + "\\\\")
+        out.write("\n\\textit{AKAZE}        " + f"   & {akaze[1]}        & {akaze[2]}       & {akaze[3]}       & {akaze[0]}       " + "\\\\")
         out.write("\n\end{tabular}")
         out.write("\n\end{table}")
-
-
-
 
 
 if __name__ == '__main__':
@@ -88,4 +85,6 @@ if __name__ == '__main__':
     utils.create_dir(tables_path)
 
     fill_in_latex_table(values_path, tables_path, int(metric_index))
+
+
 
