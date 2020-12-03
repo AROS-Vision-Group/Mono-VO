@@ -31,7 +31,6 @@ def find_numerical_results_from_logs(filepath, outpath):
             print("\n"+"-"*30)
 
 
-
 def fill_in_latex_table(filepath, outpath, metric_index):
     shi, fast, sift, censure, akaze, orb = [], [], [], [], [], []
     for experiment in (sorted(glob(f"{filepath}/**"))):
@@ -63,13 +62,13 @@ def fill_in_latex_table(filepath, outpath, metric_index):
         out.write("\n\\begin{table}[] ")
         out.write("\n\\begin{tabular}{| c | c | c | c | c|}")
         out.write("\n\hline")
-        out.write("\n                                & \\textbf{AKAZE} & \\textbf{BRIEF} & \\textbf{ORB} & {\\textbf{SIFT}      \\\\ \hline ")
-        out.write("\n\\textbf{Shi - Tomasi} " + f"   & 0.0            & {shi[0]}       & {shi[1]}     & {shi[2]}       " + "\\\\ \hline ")
-        out.write("\n\\textbf{FAST}         " + f"   & 0.0            & 0.0            & 0.0          & 0.0            " + "\\\\ \hline ")
-        out.write("\n\\textbf{SIFT}         " + f"   & 0.0            & {sift[0]}      & 0            & {sift[1]}      " + "\\\\ \hline ")
-        out.write("\n\\textbf{CenSurE}      " + f"   & 0.0            & {censure[0]}   & {censure[1]} & {censure[2]}   " + "\\\\ \hline ")
-        out.write("\n\\textbf{AKAZE}        " + f"   & {akaze[0]}     & {akaze[1]}     & {akaze[2]}   & {akaze[3]}     " + "\\\\ \hline ")
-        out.write("\n\\textbf{ORB}          " + f"   & 0.0            & {orb[0]}       & {orb[1]}     & {orb[2]}       " + "\\\\ \hline ")
+        out.write("\n                                & \\textbf{AKAZE}  & \\textbf{BRIEF}   & \\textbf{ORB}    & \\textbf{SIFT}      \\\\ \hline ")
+        out.write("\n\\textbf{Shi - Tomasi} " + f"   & N/A              & {shi[0]}          & {shi[1]}         & {shi[2]}       " + "\\\\ \hline ")
+        out.write("\n\\textbf{FAST}         " + f"   & N/A              & N/A               & N/A              & N/A            " + "\\\\ \hline ")
+        out.write("\n\\textbf{SIFT}         " + f"   & N/A              & {sift[0]}         & N/A              & {sift[1]}      " + "\\\\ \hline ")
+        out.write("\n\\textbf{CenSurE}      " + f"   & N/A              & {censure[0]}      & {censure[1]}     & {censure[2]}   " + "\\\\ \hline ")
+        out.write("\n\\textbf{AKAZE}        " + f"   & {akaze[0]}       & {akaze[1]}        & {akaze[2]}       & {akaze[3]}     " + "\\\\ \hline ")
+        out.write("\n\\textbf{ORB}          " + f"   & N/A              & {orb[0]}          & {orb[1]}         & {orb[2]}       " + "\\\\ \hline ")
         out.write("\n\end{tabular}")
         out.write("\n\end{table}")
 
