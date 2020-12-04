@@ -1,6 +1,7 @@
 # Visual Odometry implementation in Python
 
 ## Various Results
+Note: The GIFs will appear laggy until they are fully loaded.
 
 ### Orbital Sequence
 Optimal Scenario  |  Underwater Scenario
