@@ -1,0 +1,28 @@
+\begin{tabular}{l|cccccc}
+\multicolumn{1}{l}{}           & \multicolumn{6}{c}{\textbf{Metric}} \\
+\cline{2-7}
+\textbf{Detector}             & \textit{ATE} & \textit{ARE} & \textit{RTE} & \textit{RRE} &  \texit{RIR} & \texit{Runtime}      \\
+\hline
+\textit{SIFT}               & 0.0971     & 4.7318     & 0.0058     & 0.1277     & 0.9861     & 0.3650         \\
+\textit{Shi-Tomasi}         & 0.0323      & 4.2689      & 0.0009      & 0.0842      & 0.9412      & 0.0181          \\
+\textit{CenSurE}            & 0.1144  & 4.4966  & 0.0085  & 0.1260  & 0.9815  & 0.0582      \\
+\textit{ORB}                & 0.1627      & 4.6911      & 0.0075      & 0.1225      & 0.9814      & 0.0354          \\
+\textit{AKAZE}              & 0.1253    & 4.7868    & 0.0095    & 0.1171    & 0.9836    & 0.0337        \\
+\textbf{Detector+Descriptor}      &               &               &               &               &               &                   \\
+\hline
+\textit{SIFT+BRIEF}         & 0.0606    & 4.4086    & 0.0065    & 0.1015    & 0.9730    & 0.3637    \\
+\textit{SIFT+SIFT}          & 0.2644    & 4.0119    & 0.0099    & 0.1290    & 0.9659    & 0.3994    \\
+\textit{Shi-Tomasi+BRIEF}   & 0.0647    & 4.6072    & 0.0028    & 0.1275    & 0.8584    & 0.0545    \\
+\textit{Shi-Tomasi+SIFT}    & 0.0293    & 4.2102    & 0.0027    & 0.1107    & 0.7379    & 0.1501    \\
+\textit{Shi-Tomasi+ORB}     & 0.0683    & 4.9085    & 0.0061    & 0.1156    & 0.8916    & 0.0588    \\
+\textit{CenSurE+BRIEF}      & 0.2883    & 4.5887    & 0.0122    & 0.1661    & 0.9294    & 0.0639    \\
+\textit{CenSurE+SIFT}       & 0.2278    & 4.8212    & 0.0117    & 0.1510    & 0.9236    & 0.1375    \\
+\textit{CenSurE+ORB}        & 0.4053    & 4.1261    & 0.0158    & 0.1694    & 0.9338    & 0.0673    \\
+\textit{ORB+BRIEF}          & 0.2454    & 5.4683    & 0.0119    & 0.1692    & 0.8689    & 0.0439    \\
+\textit{ORB+SIFT}           & 0.0513    & 4.7603    & 0.0033    & 0.1398    & 0.7028    & 0.2733    \\
+\textit{ORB+ORB}            & 0.1237    & 4.0755    & 0.0063    & 0.1605    & 0.8097    & 0.0378    \\
+\textit{AKAZE+BRIEF}        & 0.2623    & 4.6910    & 0.0117    & 0.1179    & 0.9790    & 0.2863    \\
+\textit{AKAZE+SIFT}         & 0.2762    & 4.5808    & 0.0107    & 0.1047    & 0.9827    & 0.5567    \\
+\textit{AKAZE+ORB}          & 0.2091    & 4.4403    & 0.0102    & 0.1043    & 0.9794    & 0.2748    \\
+\textit{AKAZE+AKAZE}        & 0.3518    & 5.2814    & 0.0130    & 0.1124    & 0.9801    & 0.2682    \\
+\end{tabular}
