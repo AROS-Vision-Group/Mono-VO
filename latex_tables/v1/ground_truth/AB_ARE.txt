@@ -1,0 +1,10 @@
+\begin{tabular}{|l|c}
+\multicolumn{1}{l}{} & \\
+\multicolumn{1}{l}{\textbf{Detector}} & \\
+\hline
+\textit{SIFT}           & 4.7318     \\
+\textit{Shi-Tomasi}     & 4.2689      \\
+\textit{CenSurE}        & 4.4966  \\
+\textit{ORB}            & 4.6911      \\
+\textit{AKAZE}          & 4.7868    \\
+\end{tabular}

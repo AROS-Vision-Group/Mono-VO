@@ -1,0 +1,11 @@
+\begin{tabular}{l|cccc}
+\multicolumn{1}{l}{}           & \multicolumn{4}{c}{\textbf{Descriptor}} \\
+\cline{2-5}
+\textbf{Detector}             & \textit{BRIEF}    & \textit{SIFT}  & \textit{ORB}  & \textit{AKAZE}      \\
+\hline
+\textit{SIFT}           & 0.4762          & 0.6197       & -              & -                 \\
+\textit{Shi-Tomasi}     & 0.0498           & 0.2222        & 0.0540       & -                 \\
+\textit{CenSurE}        & 0.0551       & 0.1577    & 0.0580   & -                 \\
+\textit{ORB}            & 0.0797           & 0.7054        & 0.0361       & -                 \\
+\textit{AKAZE}          & 0.3038         & 0.5613      & 0.2985     & 0.2922       \\
+\end{tabular}
