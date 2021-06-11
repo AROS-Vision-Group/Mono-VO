@@ -1,6 +1,6 @@
-matplotlib==3.3.2
-numpy==1.19.4
+matplotlib
+numpy
 opencv-contrib-python==4.4.0.46
-pyparsing==2.4.7
-scipy==1.5.4
-PyYAML==5.3.1
+pyparsing
+scipy
+PyYAML
